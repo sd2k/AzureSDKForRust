@@ -28,6 +28,7 @@ pub use self::requests::*;
 use azure_sdk_core::enumerations;
 use azure_sdk_core::errors::TraversingError;
 use azure_sdk_core::parsing::FromStringOptional;
+use azure_sdk_core::No;
 use std::fmt;
 use std::str::FromStr;
 
@@ -38,3 +39,7 @@ create_enum!(
     (Session, "Session"),
     (Eventual, "Eventual")
 );
+
+pub trait Cosmos {
+    fn get_document<'a>(&'a self) -> requests::GetDocumentBuilder<'a, No>;
+}
