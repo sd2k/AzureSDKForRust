@@ -29,6 +29,7 @@ use azure_sdk_core::enumerations;
 use azure_sdk_core::errors::TraversingError;
 use azure_sdk_core::parsing::FromStringOptional;
 use azure_sdk_core::No;
+use hyper_rustls::HttpsConnector;
 use std::fmt;
 use std::str::FromStr;
 
@@ -40,6 +41,37 @@ create_enum!(
     (Eventual, "Eventual")
 );
 
+pub trait ClientRequired<'a> {
+    fn client(&self) -> &'a hyper::Client<HttpsConnector<hyper::client::HttpConnector>>;
+}
+
+pub trait DatabaseRequired<'a> {
+    fn database(&self) -> &'a str;
+}
+
+pub trait DatabaseSupport<'a> {
+    type O;
+    fn with_database(self, database: &'a str) -> Self::O;
+}
+
+pub trait CollectionRequired<'a> {
+    fn collection(&self) -> &'a str;
+}
+
+pub trait CollectionSupport<'a> {
+    type O;
+    fn with_collection(self, collection: &'a str) -> Self::O;
+}
+
+pub trait DocumentIDRequired<'a> {
+    fn document_id(&self) -> &'a str;
+}
+
+pub trait DocumentIDSupport<'a> {
+    type O;
+    fn with_document_id(self, document_id: &'a str) -> Self::O;
+}
+
 pub trait Cosmos {
-    fn get_document<'a>(&'a self) -> requests::GetDocumentBuilder<'a, No>;
+    fn get_document<'a>(&'a self) -> requests::GetDocumentBuilder<'a, No, No>;
 }

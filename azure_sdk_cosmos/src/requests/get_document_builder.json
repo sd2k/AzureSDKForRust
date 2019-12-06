@@ -1,6 +1,15 @@
 {
 	"name": "GetDocumentBuilder",
+	"uses": [
+		"use crate::{ClientRequired, DatabaseRequired, DatabaseSupport, CollectionRequired, CollectionSupport}",
+		"use azure_sdk_core::modify_conditions::IfMatchCondition",
+		"use azure_sdk_core::prelude::*",
+		"use azure_sdk_core::{No, ToAssign, Yes}",
+		"use hyper_rustls::HttpsConnector",
+		"use std::marker::PhantomData"
+	],
 	"extra_types": [ "'a" ],
+	"extra_wheres": [],
 	"constructor_fields": [
 		{
 			"name": "client",
@@ -10,101 +19,27 @@
 	],
 	"fields": [
 		{
-			"name": "if_match",
-			"field_type": "&IfMatchCondition<'a>",
+			"name": "database",
+			"field_type": "&'a str",
+			"builder_type": "DatabaseSet",
+			"optional": false,
+			"trait_get": "DatabaseRequired<'a>",
+			"trait_set": "DatabaseSupport<'a>"
+		},
+		{
+			"name": "collection",
+			"field_type": "&'a str",
+			"builder_type": "CollectionSet",
+			"optional": false,
+			"trait_get": "CollectionRequired<'a>",
+			"trait_set": "CollectionSupport<'a>"
+		},
+		{
+			"name": "if_match_condition",
+			"field_type": "IfMatchCondition<'a>",
 			"optional": true,
 			"trait_get": "IfMatchConditionOption<'a>",
 			"trait_set": "IfMatchConditionSupport<'a>"
-		},
-		{
-			"name": "container_name",
-			"field_type": "&'a str",
-			"builder_type": "ContainerNameSet",
-			"optional": false,
-			"trait_get": "ContainerNameRequired<'a>",
-			"trait_set": "ContainerNameSupport<'a>"
-		},
-		{
-			"name": "client_request_id",
-			"field_type": "&'a str",
-			"optional": true,
-			"trait_get": "ClientRequestIdOption<'a>",
-			"trait_set": "ClientRequestIdSupport<'a>"
-		},
-		{
-			"name": "timeout",
-			"field_type": "u64",
-			"optional": true,
-			"trait_get": "TimeoutOption",
-			"trait_set": "TimeoutSupport"
-		},
-		{
-			"name": "prefix",
-			"field_type": "&'a str",
-			"optional": true,
-			"trait_get": "PrefixOption<'a>",
-			"trait_set": "PrefixSupport<'a>"
-		},
-		{
-			"name": "delimiter",
-			"field_type": "&'a str",
-			"optional": true,
-			"trait_get": "DelimiterOption<'a>",
-			"trait_set": "DelimiterSupport<'a>"
-		},
-		{
-			"name": "next_marker",
-			"field_type": "&'a str",
-			"optional": true,
-			"trait_get": "NextMarkerOption<'a>",
-			"trait_set": "NextMarkerSupport<'a>"
-		},
-		{
-			"name": "max_results",
-			"field_type": "u32",
-			"optional": true,
-			"trait_get": "MaxResultsOption",
-			"trait_set": "MaxResultsSupport"
-		},
-		{
-			"name": "include_snapshots",
-			"field_type": "bool",
-			"optional": true,
-			"initializer": "false",
-			"trait_get": "IncludeSnapshotsOption",
-			"trait_set": "IncludeSnapshotsSupport"
-		},
-		{
-			"name": "include_metadata",
-			"field_type": "bool",
-			"optional": true,
-			"initializer": "false",
-			"trait_get": "IncludeMetadataOption",
-			"trait_set": "IncludeMetadataSupport"
-		},
-		{
-			"name": "include_uncommitted_blobs",
-			"field_type": "bool",
-			"optional": true,
-			"initializer": "false",
-			"trait_get": "IncludeUncommittedBlobsOption",
-			"trait_set": "IncludeUncommittedBlobsSupport"
-		},
-		{
-			"name": "include_copy",
-			"field_type": "bool",
-			"optional": true,
-			"initializer": "false",
-			"trait_get": "IncludeCopyOption",
-			"trait_set": "IncludeCopySupport"
-		},
-		{
-			"name": "include_deleted",
-			"field_type": "bool",
-			"optional": true,
-			"initializer": "false",
-			"trait_get": "IncludeDeletedOption",
-			"trait_set": "IncludeDeletedSupport"
 		}
 	]
 }

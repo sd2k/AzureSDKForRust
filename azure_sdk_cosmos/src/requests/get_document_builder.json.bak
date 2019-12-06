@@ -1,0 +1,44 @@
+{
+	"name": "GetDocumentBuilder",
+	"extra_types": [ "'a", "S1" ],
+	"extra_wheres": ["S1: AsRef<str>"],
+	"constructor_fields": [
+		{
+			"name": "client",
+			"field_type": "&'a hyper::Client<HttpsConnector<hyper::client::HttpConnector>>",
+			"trait_get": "ClientRequired<'a>"
+		}
+	],
+	"fields": [
+		{
+			"name": "database",
+			"field_type": "S1",
+			"builder_type": "DatabaseSet",
+			"optional": false,
+			"trait_get": "DatabaseRequired",
+			"trait_set": "DatabaseSupport"
+		},
+		{
+			"name": "if_match",
+			"field_type": "&IfMatchCondition<'a>",
+			"optional": true,
+			"trait_get": "IfMatchConditionOption<'a>",
+			"trait_set": "IfMatchConditionSupport<'a>"
+		},
+		{
+			"name": "allow_multiple_writes",
+			"field_type": "bool",
+			"optional": true,
+			"initializer": "false",
+			"trait_get": "AllowMultipleWritesOption",
+			"trait_set": "AllowMultipleWritesSupport"
+		},
+		{
+			"name": "partition_key",
+			"field_type": "&'a str",
+			"optional": true,
+			"trait_get": "PartitionKeyOption",
+			"trait_set": "PartitionKeySupport"
+		}
+	]
+}
