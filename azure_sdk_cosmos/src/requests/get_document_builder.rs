@@ -74,9 +74,8 @@ where
 	}
 }
 
-impl<'a, DatabaseSet, CollectionSet> DatabaseSupport<'a> for GetDocumentBuilder<'a, DatabaseSet, CollectionSet>
+impl<'a, CollectionSet> DatabaseSupport<'a> for GetDocumentBuilder<'a, No, CollectionSet>
 where
-	DatabaseSet : ToAssign,
 	CollectionSet : ToAssign,
 
 {
@@ -94,10 +93,9 @@ where
 	}
 }
 
-impl<'a, DatabaseSet, CollectionSet> CollectionSupport<'a> for GetDocumentBuilder<'a, DatabaseSet, CollectionSet>
+impl<'a, DatabaseSet> CollectionSupport<'a> for GetDocumentBuilder<'a, DatabaseSet, No>
 where
 	DatabaseSet : ToAssign,
-	CollectionSet : ToAssign,
 
 {
 	type O = GetDocumentBuilder<'a, DatabaseSet, Yes>;
