@@ -1,20 +1,20 @@
 {
 	"name": "GetDocumentBuilder",
+	"derive": "Debug, Clone",
 	"uses": [
-		"use crate::{ClientRequired, DatabaseRequired, DatabaseSupport, CollectionRequired, CollectionSupport}",
-		"use azure_sdk_core::modify_conditions::IfMatchCondition",
-		"use azure_sdk_core::prelude::*",
-		"use azure_sdk_core::{No, ToAssign, Yes}",
-		"use hyper_rustls::HttpsConnector",
-		"use std::marker::PhantomData"
+		"crate::{ClientRequired, DatabaseRequired, DatabaseSupport, CollectionRequired, CollectionSupport, DocumentIDRequired, DocumentIDSupport, CosmosUriBuilder, Client}",
+		"azure_sdk_core::modify_conditions::IfMatchCondition",
+		"azure_sdk_core::prelude::*",
+		"azure_sdk_core::{No, ToAssign, Yes}",
+		"std::marker::PhantomData"
 	],
-	"extra_types": [ "'a" ],
-	"extra_wheres": [],
+	"extra_types": [ "'a", "CUB" ],
+	"extra_wheres": ["CUB: CosmosUriBuilder" ],
 	"constructor_fields": [
 		{
 			"name": "client",
-			"field_type": "&'a hyper::Client<HttpsConnector<hyper::client::HttpConnector>>",
-			"trait_get": "ClientRequired<'a>"
+			"field_type": "&'a Client<CUB>",
+			"trait_get": "ClientRequired<'a, CUB>"
 		}
 	],
 	"fields": [
@@ -33,6 +33,14 @@
 			"optional": false,
 			"trait_get": "CollectionRequired<'a>",
 			"trait_set": "CollectionSupport<'a>"
+		},
+		{
+			"name": "document_id",
+			"field_type": "&'a str",
+			"builder_type": "DocumentIDSet",
+			"optional": false,
+			"trait_get": "DocumentIDRequired<'a>",
+			"trait_set": "DocumentIDSupport<'a>"
 		},
 		{
 			"name": "if_match_condition",

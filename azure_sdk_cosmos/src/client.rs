@@ -4,7 +4,7 @@ use super::{
     query::Query,
     request_response::{Document, ListCollectionsResponse, ListDatabasesResponse},
     requests::*,
-    AuthorizationToken, Offer, TokenType,
+    AuthorizationToken, Cosmos, Offer, TokenType,
 };
 use crate::create_collection_builder::CreateCollectionBuilder;
 use azure_sdk_core::No;
@@ -72,6 +72,15 @@ where
     hyper_client: Arc<hyper::Client<HttpsConnector<hyper::client::HttpConnector>>>,
     auth_token: AuthorizationToken,
     cosmos_uri_builder: CUB,
+}
+
+impl<CUB> Cosmos<CUB> for Client<CUB>
+where
+    CUB: CosmosUriBuilder,
+{
+    fn get_document<'a>(&'a self) -> GetDocumentBuilder<'a, CUB, No, No, No> {
+        GetDocumentBuilder::new(self.clone())
+    }
 }
 
 pub trait CosmosUriBuilder {

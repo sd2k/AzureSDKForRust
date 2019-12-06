@@ -1,151 +1,213 @@
-
-use crate::{ClientRequired, DatabaseRequired, DatabaseSupport, CollectionRequired, CollectionSupport};
+use crate::{
+    Client, ClientRequired, CollectionRequired, CollectionSupport, CosmosUriBuilder,
+    DatabaseRequired, DatabaseSupport, DocumentIDRequired, DocumentIDSupport,
+};
 use azure_sdk_core::modify_conditions::IfMatchCondition;
 use azure_sdk_core::prelude::*;
 use azure_sdk_core::{No, ToAssign, Yes};
-use hyper_rustls::HttpsConnector;
 use std::marker::PhantomData;
 
-pub struct GetDocumentBuilder<'a, DatabaseSet, CollectionSet>
+#[derive(Debug, Clone)]
+pub struct GetDocumentBuilder<'a, CUB, DatabaseSet, CollectionSet, DocumentIDSet>
 where
-	DatabaseSet : ToAssign,
-	CollectionSet : ToAssign,
- {
-	client: &'a hyper::Client<HttpsConnector<hyper::client::HttpConnector>>,
-	p_database: PhantomData<DatabaseSet>,
-	p_collection: PhantomData<CollectionSet>,
-	database: Option<&'a str>,
-	collection: Option<&'a str>,
-	if_match_condition: Option<IfMatchCondition<'a>>,
-}
-
-impl<'a> GetDocumentBuilder<'a, No, No>  {
-	 pub(crate) fn new(client: &'a hyper::Client<HttpsConnector<hyper::client::HttpConnector>>) -> GetDocumentBuilder<'a, No, No> {
-		GetDocumentBuilder {
-			client,
-			p_database: PhantomData {},
-			database: None,
-			p_collection: PhantomData {},
-			collection: None,
-			if_match_condition: None,
-		}
-	}
-}
-
-impl<'a, DatabaseSet, CollectionSet> ClientRequired<'a> for GetDocumentBuilder<'a, DatabaseSet, CollectionSet>
-where
-	DatabaseSet : ToAssign,
-	CollectionSet : ToAssign,
+    DatabaseSet: ToAssign,
+    CollectionSet: ToAssign,
+    DocumentIDSet: ToAssign,
+    CUB: CosmosUriBuilder,
 {
-	fn client(&self) -> &'a hyper::Client<HttpsConnector<hyper::client::HttpConnector>> {
-		self.client
-	}
-
+    client: &'a Client<CUB>,
+    p_database: PhantomData<DatabaseSet>,
+    p_collection: PhantomData<CollectionSet>,
+    p_document_id: PhantomData<DocumentIDSet>,
+    database: Option<&'a str>,
+    collection: Option<&'a str>,
+    document_id: Option<&'a str>,
+    if_match_condition: Option<IfMatchCondition<'a>>,
 }
 
-impl<'a, CollectionSet> DatabaseRequired<'a> for GetDocumentBuilder<'a, Yes, CollectionSet>
+impl<'a, CUB> GetDocumentBuilder<'a, CUB, No, No, No>
 where
-	CollectionSet : ToAssign,
-
+    CUB: CosmosUriBuilder,
 {
-	fn database(&self) -> &'a str {
-		self.database.unwrap()
-	}
+    pub(crate) fn new(client: &'a Client<CUB>) -> GetDocumentBuilder<'a, CUB, No, No, No> {
+        GetDocumentBuilder {
+            client,
+            p_database: PhantomData {},
+            database: None,
+            p_collection: PhantomData {},
+            collection: None,
+            p_document_id: PhantomData {},
+            document_id: None,
+            if_match_condition: None,
+        }
+    }
 }
 
-impl<'a, DatabaseSet> CollectionRequired<'a> for GetDocumentBuilder<'a, DatabaseSet, Yes>
+impl<'a, CUB, DatabaseSet, CollectionSet, DocumentIDSet> ClientRequired<'a, CUB>
+    for GetDocumentBuilder<'a, CUB, DatabaseSet, CollectionSet, DocumentIDSet>
 where
-	DatabaseSet : ToAssign,
-
+    DatabaseSet: ToAssign,
+    CollectionSet: ToAssign,
+    DocumentIDSet: ToAssign,
+    CUB: CosmosUriBuilder,
 {
-	fn collection(&self) -> &'a str {
-		self.collection.unwrap()
-	}
+    fn client(&self) -> &'a Client<CUB> {
+        self.client
+    }
 }
 
-impl<'a, DatabaseSet, CollectionSet> IfMatchConditionOption<'a> for GetDocumentBuilder<'a, DatabaseSet, CollectionSet>
+impl<'a, CUB, CollectionSet, DocumentIDSet> DatabaseRequired<'a>
+    for GetDocumentBuilder<'a, CUB, Yes, CollectionSet, DocumentIDSet>
 where
-	DatabaseSet : ToAssign,
-	CollectionSet : ToAssign,
-
+    CollectionSet: ToAssign,
+    DocumentIDSet: ToAssign,
+    CUB: CosmosUriBuilder,
 {
-	fn if_match_condition(&self) -> Option<IfMatchCondition<'a>> {
-		self.if_match_condition
-	}
+    fn database(&self) -> &'a str {
+        self.database.unwrap()
+    }
 }
 
-impl<'a, CollectionSet> DatabaseSupport<'a> for GetDocumentBuilder<'a, No, CollectionSet>
+impl<'a, CUB, DatabaseSet, DocumentIDSet> CollectionRequired<'a>
+    for GetDocumentBuilder<'a, CUB, DatabaseSet, Yes, DocumentIDSet>
 where
-	CollectionSet : ToAssign,
-
+    DatabaseSet: ToAssign,
+    DocumentIDSet: ToAssign,
+    CUB: CosmosUriBuilder,
 {
-	type O = GetDocumentBuilder<'a, Yes, CollectionSet>;
-
-	fn with_database(self, database: &'a str) -> Self::O {
-		GetDocumentBuilder {
-				client: self.client,
-				p_database: PhantomData{},
-				p_collection: PhantomData{},
-				database: Some(database),
-				collection: self.collection,
-				if_match_condition: self.if_match_condition,
-		}
-	}
+    fn collection(&self) -> &'a str {
+        self.collection.unwrap()
+    }
 }
 
-impl<'a, DatabaseSet> CollectionSupport<'a> for GetDocumentBuilder<'a, DatabaseSet, No>
+impl<'a, CUB, DatabaseSet, CollectionSet> DocumentIDRequired<'a>
+    for GetDocumentBuilder<'a, CUB, DatabaseSet, CollectionSet, Yes>
 where
-	DatabaseSet : ToAssign,
-
+    DatabaseSet: ToAssign,
+    CollectionSet: ToAssign,
+    CUB: CosmosUriBuilder,
 {
-	type O = GetDocumentBuilder<'a, DatabaseSet, Yes>;
-
-	fn with_collection(self, collection: &'a str) -> Self::O {
-		GetDocumentBuilder {
-				client: self.client,
-				p_database: PhantomData{},
-				p_collection: PhantomData{},
-				database: self.database,
-				collection: Some(collection),
-				if_match_condition: self.if_match_condition,
-		}
-	}
+    fn document_id(&self) -> &'a str {
+        self.document_id.unwrap()
+    }
 }
 
-impl<'a, DatabaseSet, CollectionSet> IfMatchConditionSupport<'a> for GetDocumentBuilder<'a, DatabaseSet, CollectionSet>
+impl<'a, CUB, DatabaseSet, CollectionSet, DocumentIDSet> IfMatchConditionOption<'a>
+    for GetDocumentBuilder<'a, CUB, DatabaseSet, CollectionSet, DocumentIDSet>
 where
-	DatabaseSet : ToAssign,
-	CollectionSet : ToAssign,
-
+    DatabaseSet: ToAssign,
+    CollectionSet: ToAssign,
+    DocumentIDSet: ToAssign,
+    CUB: CosmosUriBuilder,
 {
-	type O = GetDocumentBuilder<'a, DatabaseSet, CollectionSet>;
+    fn if_match_condition(&self) -> Option<IfMatchCondition<'a>> {
+        self.if_match_condition
+    }
+}
 
-	fn with_if_match_condition(self, if_match_condition: IfMatchCondition<'a>) -> Self::O {
-		GetDocumentBuilder {
-				client: self.client,
-				p_database: PhantomData{},
-				p_collection: PhantomData{},
-				database: self.database,
-				collection: self.collection,
-				if_match_condition: Some(if_match_condition),
-		}
-	}
+impl<'a, CUB, CollectionSet, DocumentIDSet> DatabaseSupport<'a>
+    for GetDocumentBuilder<'a, CUB, No, CollectionSet, DocumentIDSet>
+where
+    CollectionSet: ToAssign,
+    DocumentIDSet: ToAssign,
+    CUB: CosmosUriBuilder,
+{
+    type O = GetDocumentBuilder<'a, CUB, Yes, CollectionSet, DocumentIDSet>;
+
+    fn with_database(self, database: &'a str) -> Self::O {
+        GetDocumentBuilder {
+            client: self.client,
+            p_database: PhantomData {},
+            p_collection: PhantomData {},
+            p_document_id: PhantomData {},
+            database: Some(database),
+            collection: self.collection,
+            document_id: self.document_id,
+            if_match_condition: self.if_match_condition,
+        }
+    }
+}
+
+impl<'a, CUB, DatabaseSet, DocumentIDSet> CollectionSupport<'a>
+    for GetDocumentBuilder<'a, CUB, DatabaseSet, No, DocumentIDSet>
+where
+    DatabaseSet: ToAssign,
+    DocumentIDSet: ToAssign,
+    CUB: CosmosUriBuilder,
+{
+    type O = GetDocumentBuilder<'a, CUB, DatabaseSet, Yes, DocumentIDSet>;
+
+    fn with_collection(self, collection: &'a str) -> Self::O {
+        GetDocumentBuilder {
+            client: self.client,
+            p_database: PhantomData {},
+            p_collection: PhantomData {},
+            p_document_id: PhantomData {},
+            database: self.database,
+            collection: Some(collection),
+            document_id: self.document_id,
+            if_match_condition: self.if_match_condition,
+        }
+    }
+}
+
+impl<'a, CUB, DatabaseSet, CollectionSet> DocumentIDSupport<'a>
+    for GetDocumentBuilder<'a, CUB, DatabaseSet, CollectionSet, No>
+where
+    DatabaseSet: ToAssign,
+    CollectionSet: ToAssign,
+    CUB: CosmosUriBuilder,
+{
+    type O = GetDocumentBuilder<'a, CUB, DatabaseSet, CollectionSet, Yes>;
+
+    fn with_document_id(self, document_id: &'a str) -> Self::O {
+        GetDocumentBuilder {
+            client: self.client,
+            p_database: PhantomData {},
+            p_collection: PhantomData {},
+            p_document_id: PhantomData {},
+            database: self.database,
+            collection: self.collection,
+            document_id: Some(document_id),
+            if_match_condition: self.if_match_condition,
+        }
+    }
+}
+
+impl<'a, CUB, DatabaseSet, CollectionSet, DocumentIDSet> IfMatchConditionSupport<'a>
+    for GetDocumentBuilder<'a, CUB, DatabaseSet, CollectionSet, DocumentIDSet>
+where
+    DatabaseSet: ToAssign,
+    CollectionSet: ToAssign,
+    DocumentIDSet: ToAssign,
+    CUB: CosmosUriBuilder,
+{
+    type O = GetDocumentBuilder<'a, CUB, DatabaseSet, CollectionSet, DocumentIDSet>;
+
+    fn with_if_match_condition(self, if_match_condition: IfMatchCondition<'a>) -> Self::O {
+        GetDocumentBuilder {
+            client: self.client,
+            p_database: PhantomData {},
+            p_collection: PhantomData {},
+            p_document_id: PhantomData {},
+            database: self.database,
+            collection: self.collection,
+            document_id: self.document_id,
+            if_match_condition: Some(if_match_condition),
+        }
+    }
 }
 
 // methods callable regardless
-impl<'a, DatabaseSet, CollectionSet> GetDocumentBuilder<'a, DatabaseSet, CollectionSet>
+impl<'a, CUB, DatabaseSet, CollectionSet, DocumentIDSet>
+    GetDocumentBuilder<'a, CUB, DatabaseSet, CollectionSet, DocumentIDSet>
 where
-	DatabaseSet : ToAssign,
-	CollectionSet : ToAssign,
-
+    DatabaseSet: ToAssign,
+    CollectionSet: ToAssign,
+    DocumentIDSet: ToAssign,
+    CUB: CosmosUriBuilder,
 {
-
 }
 
 // methods callable only when every mandatory field has been filled
-impl<'a> GetDocumentBuilder<'a, Yes, Yes>
-
-{
-
-}
-
+impl<'a, CUB> GetDocumentBuilder<'a, CUB, Yes, Yes, Yes> where CUB: CosmosUriBuilder {}
