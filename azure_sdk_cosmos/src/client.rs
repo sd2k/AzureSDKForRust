@@ -4,7 +4,7 @@ use super::{
     query::Query,
     request_response::{Document, ListCollectionsResponse, ListDatabasesResponse},
     requests::*,
-    AuthorizationToken, Cosmos, Offer, TokenType,
+    AuthorizationToken, Offer, TokenType,
 };
 use crate::create_collection_builder::CreateCollectionBuilder;
 use azure_sdk_core::No;

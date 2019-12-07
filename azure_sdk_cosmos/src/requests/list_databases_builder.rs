@@ -1,16 +1,9 @@
 use crate::client2::{Client2, CosmosUriBuilder, ResourceType};
-use crate::database::Database;
-use crate::request_response::{Document, ListCollectionsResponse, ListDatabasesResponse};
-use crate::{
-    Client2Required, CollectionRequired, CollectionSupport, DatabaseRequired, DatabaseSupport,
-    DocumentIDRequired, DocumentIDSupport,
-};
+use crate::request_response::ListDatabasesResponse;
+use crate::Client2Required;
 use azure_sdk_core::errors::{check_status_extract_body, AzureError};
-use azure_sdk_core::modify_conditions::IfMatchCondition;
 use azure_sdk_core::prelude::*;
-use azure_sdk_core::{No, ToAssign, Yes};
 use hyper::StatusCode;
-use std::marker::PhantomData;
 
 #[derive(Debug, Clone)]
 pub struct ListDatabasesBuilder<'a, CUB>

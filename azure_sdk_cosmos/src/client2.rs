@@ -1,29 +1,25 @@
 use super::{
-    collection::Collection,
-    database::Database,
-    query::Query,
-    request_response::{Document, ListCollectionsResponse, ListDatabasesResponse},
+    //collection::Collection,
+    //database::Database,
+    //query::Query,
     requests::*,
-    AuthorizationToken, Cosmos, Offer, TokenType,
+    AuthorizationToken,
+    Cosmos,
+    DatabaseTrait,
+    TokenType,
 };
-use crate::create_collection_builder::CreateCollectionBuilder;
-use azure_sdk_core::No;
-use azure_sdk_core::{
-    errors::{check_status_extract_body, AzureError},
-    util::RequestBuilderExt,
-};
+//use crate::create_collection_builder::CreateCollectionBuilder;
+use crate::database_client::DatabaseClient;
+use azure_sdk_core::{errors::AzureError, util::RequestBuilderExt};
 use base64;
 use chrono;
 use http::request::Builder as RequestBuilder;
 use hyper::{
     self,
     header::{self, HeaderValue},
-    StatusCode,
 };
 use hyper_rustls::HttpsConnector;
 use ring::hmac;
-use serde::{de::DeserializeOwned, Serialize};
-use serde_json;
 use url::form_urlencoded;
 
 const AZURE_VERSION: &str = "2017-02-22";
@@ -55,7 +51,7 @@ pub(crate) mod headers {
 }
 use self::headers::*;
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub(crate) enum ResourceType {
     Databases,
     Collections,
@@ -191,8 +187,12 @@ impl<CUB> Cosmos<CUB> for Client2<CUB>
 where
     CUB: CosmosUriBuilder,
 {
-    fn list<'a>(&'a self) -> ListDatabasesBuilder<'a, CUB> {
+    fn list<'b>(&'b self) -> ListDatabasesBuilder<'b, CUB> {
         ListDatabasesBuilder::new(self)
+    }
+
+    fn with_database<'a>(self, database_name: &'a str) -> DatabaseClient<'a, CUB> {
+        DatabaseClient::new(self, database_name)
     }
 }
 
