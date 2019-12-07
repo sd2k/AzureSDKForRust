@@ -187,7 +187,7 @@ impl<CUB> CosmosTrait<CUB> for Client2<CUB>
 where
     CUB: CosmosUriBuilder,
 {
-    fn list<'b>(&'b self) -> ListDatabasesBuilder<'b, CUB> {
+    fn list(&self) -> ListDatabasesBuilder<'_, CUB> {
         ListDatabasesBuilder::new(self)
     }
 

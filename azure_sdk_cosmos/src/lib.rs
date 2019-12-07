@@ -98,7 +98,7 @@ pub trait CosmosTrait<CUB>
 where
     CUB: crate::client2::CosmosUriBuilder,
 {
-    fn list<'a>(&'a self) -> requests::ListDatabasesBuilder<'a, CUB>;
+    fn list(&self) -> requests::ListDatabasesBuilder<'_, CUB>;
     fn with_database<'d>(&'d self, database_name: &'d dyn DatabaseName) -> DatabaseClient<'d, CUB>;
 }
 
@@ -107,5 +107,5 @@ where
     CUB: crate::client2::CosmosUriBuilder,
 {
     fn database(&self) -> &'a str;
-    fn list(&'a self) -> requests::ListCollectionsBuilder<'a, CUB>;
+    fn list(&self) -> requests::ListCollectionsBuilder<'_, CUB>;
 }

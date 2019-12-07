@@ -28,7 +28,7 @@ where
         self.database
     }
 
-    fn list(&'a self) -> ListCollectionsBuilder<'a, CUB> {
+    fn list(&self) -> ListCollectionsBuilder<'_, CUB> {
         ListCollectionsBuilder::new(self)
     }
 }

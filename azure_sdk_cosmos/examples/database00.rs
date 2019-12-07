@@ -15,13 +15,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client2Builder::new(authorization_token)?;
 
     let dbs = client.list().finalize().await?;
-    println!("{:?}", dbs);
 
     for db in dbs.databases {
-        println!("{:?}", db);
+        println!("database == {:?}", db);
 
         let collections = client.with_database(&db).list().finalize().await?;
-        println!("collections == {:?}", collections);
+        for collection in collections.collections {
+            println!("collection == {:?}", collection);
+        }
     }
 
     Ok(())
