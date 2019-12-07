@@ -8,6 +8,7 @@ extern crate azure_sdk_core;
 
 mod authorization_token;
 mod client;
+mod client2;
 pub mod collection;
 mod create_collection_builder;
 pub mod database;
@@ -21,6 +22,7 @@ mod requests;
 
 pub use self::authorization_token::*;
 pub use self::client::*;
+pub use self::client2::{Client2, Client2Builder};
 pub use self::offer::Offer;
 pub use self::partition_key::*;
 pub use self::requests::*;
@@ -45,6 +47,13 @@ where
     CUB: CosmosUriBuilder,
 {
     fn client(&self) -> &'a Client<CUB>;
+}
+
+pub trait Client2Required<'a, CUB>
+where
+    CUB: crate::client2::CosmosUriBuilder,
+{
+    fn client(&self) -> &'a Client2<CUB>;
 }
 
 pub trait DatabaseRequired<'a> {
@@ -76,7 +85,7 @@ pub trait DocumentIDSupport<'a> {
 
 pub trait Cosmos<CUB>
 where
-    CUB: CosmosUriBuilder,
+    CUB: crate::client2::CosmosUriBuilder,
 {
-    fn get_document<'a>(&'a self) -> requests::GetDocumentBuilder<'a, CUB, No, No, No>;
+    fn list<'a>(&'a self) -> requests::ListDatabasesBuilder<'a, CUB>;
 }

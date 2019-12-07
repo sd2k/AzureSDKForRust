@@ -55,8 +55,10 @@ macro_rules! request_option {
 
 mod document_requests;
 mod get_document_builder;
+mod list_databases_builder;
 mod sproc_requests;
 
 pub use self::document_requests::*;
 pub use self::get_document_builder::*;
+pub use self::list_databases_builder::ListDatabasesBuilder;
 pub use self::sproc_requests::*;

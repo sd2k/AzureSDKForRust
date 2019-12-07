@@ -74,14 +74,14 @@ where
     cosmos_uri_builder: CUB,
 }
 
-impl<CUB> Cosmos<CUB> for Client<CUB>
-where
-    CUB: CosmosUriBuilder,
-{
-    fn get_document<'a>(&'a self) -> GetDocumentBuilder<'a, CUB, No, No, No> {
-        GetDocumentBuilder::new(self.clone())
-    }
-}
+//impl<CUB> Cosmos<CUB> for Client<CUB>
+//where
+//    CUB: CosmosUriBuilder,
+//{
+//    fn get_document<'a>(&'a self) -> GetDocumentBuilder<'a, CUB, No, No, No> {
+//        GetDocumentBuilder::new(self.clone())
+//    }
+//}
 
 pub trait CosmosUriBuilder {
     fn build_base_uri(&self) -> &str;
