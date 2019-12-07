@@ -1,4 +1,5 @@
 use crate::client2::{Client2, CosmosUriBuilder};
+use crate::requests::ListCollectionsBuilder;
 use crate::DatabaseTrait;
 
 #[derive(Debug, Clone)]
@@ -25,6 +26,10 @@ where
 {
     fn database(&self) -> &'a str {
         self.database
+    }
+
+    fn list(&'a self) -> ListCollectionsBuilder<'a, CUB> {
+        ListCollectionsBuilder::new(self)
     }
 }
 

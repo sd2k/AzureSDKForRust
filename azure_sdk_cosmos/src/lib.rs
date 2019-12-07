@@ -62,6 +62,13 @@ pub trait DatabaseRequired<'a> {
     fn database(&self) -> &'a str;
 }
 
+pub trait DatabaseClientRequired<'a, CUB>
+where
+    CUB: crate::client2::CosmosUriBuilder,
+{
+    fn database_client(&self) -> &'a DatabaseClient<'a, CUB>;
+}
+
 pub trait DatabaseSupport<'a> {
     type O;
     fn with_database(self, database: &'a str) -> Self::O;
@@ -86,7 +93,7 @@ pub trait DocumentIDSupport<'a> {
 }
 
 //// New implementation
-pub trait Cosmos<CUB>
+pub trait CosmosTrait<CUB>
 where
     CUB: crate::client2::CosmosUriBuilder,
 {
@@ -99,4 +106,5 @@ where
     CUB: crate::client2::CosmosUriBuilder,
 {
     fn database(&self) -> &'a str;
+    fn list(&'a self) -> requests::ListCollectionsBuilder<'a, CUB>;
 }

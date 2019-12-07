@@ -4,7 +4,7 @@ use super::{
     //query::Query,
     requests::*,
     AuthorizationToken,
-    Cosmos,
+    CosmosTrait,
     DatabaseTrait,
     TokenType,
 };
@@ -183,7 +183,7 @@ impl Client2Builder {
     }
 }
 
-impl<CUB> Cosmos<CUB> for Client2<CUB>
+impl<CUB> CosmosTrait<CUB> for Client2<CUB>
 where
     CUB: CosmosUriBuilder,
 {
