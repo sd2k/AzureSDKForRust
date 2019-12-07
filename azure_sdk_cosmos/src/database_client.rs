@@ -7,7 +7,7 @@ pub struct DatabaseClient<'a, CUB>
 where
     CUB: CosmosUriBuilder,
 {
-    client: Client2<CUB>,
+    pub(crate) client: &'a Client2<CUB>,
     database: &'a str,
 }
 
@@ -15,7 +15,7 @@ impl<'a, CUB> DatabaseClient<'a, CUB>
 where
     CUB: CosmosUriBuilder,
 {
-    pub(crate) fn new(client: Client2<CUB>, database: &'a str) -> Self {
+    pub(crate) fn new(client: &'a Client2<CUB>, database: &'a str) -> Self {
         DatabaseClient { client, database }
     }
 }

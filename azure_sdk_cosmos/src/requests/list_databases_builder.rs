@@ -36,8 +36,8 @@ impl<'a, CUB> ListDatabasesBuilder<'a, CUB>
 where
     CUB: CosmosUriBuilder,
 {
-    pub async fn finalize(&self) -> Result<ListDatabasesResponse, AzureError> {
-        trace!("list_databases called");
+    pub async fn finalize(self) -> Result<ListDatabasesResponse, AzureError> {
+        trace!("ListDatabasesBuilder::finalize called");
 
         let request = self
             .client

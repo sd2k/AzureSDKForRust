@@ -14,3 +14,9 @@ pub struct Database {
     #[serde(rename = "_users")]
     pub users: String,
 }
+
+impl std::convert::AsRef<str> for Database {
+    fn as_ref(&self) -> &str {
+        &self.id
+    }
+}

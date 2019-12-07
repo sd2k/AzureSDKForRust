@@ -191,7 +191,7 @@ where
         ListDatabasesBuilder::new(self)
     }
 
-    fn with_database<'a>(self, database_name: &'a str) -> DatabaseClient<'a, CUB> {
+    fn with_database<'a>(&'a self, database_name: &'a str) -> DatabaseClient<'a, CUB> {
         DatabaseClient::new(self, database_name)
     }
 }
