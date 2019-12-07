@@ -15,8 +15,18 @@ pub struct Database {
     pub users: String,
 }
 
-impl std::convert::AsRef<str> for Database {
-    fn as_ref(&self) -> &str {
+pub trait DatabaseName {
+    fn name(&self) -> &str;
+}
+
+impl DatabaseName for Database {
+    fn name(&self) -> &str {
         &self.id
+    }
+}
+
+impl DatabaseName for dyn AsRef<str> {
+    fn name(&self) -> &str {
+        self.as_ref()
     }
 }

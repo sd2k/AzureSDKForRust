@@ -27,7 +27,7 @@ pub struct IncludedPath {
     #[serde(rename = "path")]
     pub path: String,
     #[serde(rename = "indexes")]
-    pub indexes: Vec<IncludedPathIndex>,
+    pub indexes: Option<Vec<IncludedPathIndex>>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

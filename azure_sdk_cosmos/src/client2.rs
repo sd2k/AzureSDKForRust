@@ -5,10 +5,10 @@ use super::{
     requests::*,
     AuthorizationToken,
     CosmosTrait,
-    DatabaseTrait,
     TokenType,
 };
 //use crate::create_collection_builder::CreateCollectionBuilder;
+use crate::database::DatabaseName;
 use crate::database_client::DatabaseClient;
 use azure_sdk_core::{errors::AzureError, util::RequestBuilderExt};
 use base64;
@@ -191,8 +191,8 @@ where
         ListDatabasesBuilder::new(self)
     }
 
-    fn with_database<'a>(&'a self, database_name: &'a str) -> DatabaseClient<'a, CUB> {
-        DatabaseClient::new(self, database_name)
+    fn with_database<'a>(&'a self, database_name: &'a dyn DatabaseName) -> DatabaseClient<'a, CUB> {
+        DatabaseClient::new(self, database_name.name())
     }
 }
 

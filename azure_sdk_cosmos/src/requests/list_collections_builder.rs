@@ -1,11 +1,9 @@
-use crate::client2::{Client2, CosmosUriBuilder, ResourceType};
-use crate::database::Database;
-use crate::request_response::{Document, ListCollectionsResponse, ListDatabasesResponse};
+use crate::client2::{CosmosUriBuilder, ResourceType};
+use crate::request_response::ListCollectionsResponse;
 use crate::DatabaseClient;
 use crate::DatabaseClientRequired;
 use crate::DatabaseTrait;
 use azure_sdk_core::errors::{check_status_extract_body, AzureError};
-use azure_sdk_core::prelude::*;
 use hyper::StatusCode;
 
 #[derive(Debug, Clone)]

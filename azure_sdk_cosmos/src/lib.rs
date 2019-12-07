@@ -33,6 +33,7 @@ use azure_sdk_core::enumerations;
 use azure_sdk_core::errors::TraversingError;
 use azure_sdk_core::parsing::FromStringOptional;
 //use azure_sdk_core::No;
+use crate::database::DatabaseName;
 use std::fmt;
 use std::str::FromStr;
 
@@ -98,7 +99,7 @@ where
     CUB: crate::client2::CosmosUriBuilder,
 {
     fn list<'a>(&'a self) -> requests::ListDatabasesBuilder<'a, CUB>;
-    fn with_database<'d>(&'d self, database_name: &'d str) -> DatabaseClient<'d, CUB>;
+    fn with_database<'d>(&'d self, database_name: &'d dyn DatabaseName) -> DatabaseClient<'d, CUB>;
 }
 
 pub trait DatabaseTrait<'a, CUB>

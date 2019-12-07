@@ -1,6 +1,5 @@
 use azure_sdk_cosmos::prelude::*;
 use std::error::Error;
-use std::sync::Arc;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -20,7 +19,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     for db in dbs.databases {
         println!("{:?}", db);
-        let collections = client.with_database(db.as_ref()).list().finalize().await?;
+
+        let collections = client.with_database(&db).list().finalize().await?;
+        println!("collections == {:?}", collections);
     }
 
     Ok(())
