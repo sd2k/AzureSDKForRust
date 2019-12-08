@@ -252,4 +252,5 @@ where
 {
     fn database(&self) -> &'a str;
     fn collection(&self) -> &'a str;
+    fn list(&self) -> requests::ListDocumentsBuilder<'_, '_, CUB>;
 }

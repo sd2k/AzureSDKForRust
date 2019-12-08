@@ -1,5 +1,6 @@
 use crate::client2::CosmosUriBuilder;
 use crate::database_client::DatabaseClient;
+use crate::requests::ListDocumentsBuilder;
 use crate::{CollectionTrait, DatabaseTrait};
 
 #[derive(Debug, Clone)]
@@ -32,7 +33,7 @@ where
         self.collection
     }
 
-    //fn list(&self) -> ListCollectionsBuilder<'_, CUB> {
-    //    ListCollectionsBuilder::new(self)
-    //}
+    fn list(&self) -> ListDocumentsBuilder<'_, '_, CUB> {
+        ListDocumentsBuilder::new(self)
+    }
 }
