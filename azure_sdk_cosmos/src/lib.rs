@@ -10,6 +10,7 @@ mod authorization_token;
 mod client;
 mod client2;
 pub mod collection;
+mod collection_client;
 mod create_collection_builder;
 pub mod database;
 mod database_client;
@@ -28,11 +29,13 @@ pub use self::offer::Offer;
 pub use self::partition_key::*;
 pub use self::requests::*;
 
+use self::collection_client::CollectionClient;
 use self::database_client::DatabaseClient;
 use azure_sdk_core::enumerations;
 use azure_sdk_core::errors::TraversingError;
 use azure_sdk_core::parsing::FromStringOptional;
 //use azure_sdk_core::No;
+use crate::collection::CollectionName;
 use crate::database::DatabaseName;
 use std::fmt;
 use std::str::FromStr;
@@ -108,4 +111,16 @@ where
 {
     fn database(&self) -> &'a str;
     fn list(&self) -> requests::ListCollectionsBuilder<'_, CUB>;
+    fn with_collection<'c>(
+        &'c self,
+        collection_name: &'c dyn CollectionName,
+    ) -> CollectionClient<'c, CUB>;
+}
+
+pub trait CollectionTrait<'a, CUB>
+where
+    CUB: crate::client2::CosmosUriBuilder,
+{
+    fn database(&self) -> &'a str;
+    fn collection(&self) -> &'a str;
 }

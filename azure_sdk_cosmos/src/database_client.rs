@@ -1,6 +1,6 @@
 use crate::client2::{Client2, CosmosUriBuilder};
 use crate::requests::ListCollectionsBuilder;
-use crate::DatabaseTrait;
+use crate::{CollectionClient, CollectionName, DatabaseTrait};
 
 #[derive(Debug, Clone)]
 pub struct DatabaseClient<'a, CUB>
@@ -30,6 +30,13 @@ where
 
     fn list(&self) -> ListCollectionsBuilder<'_, CUB> {
         ListCollectionsBuilder::new(self)
+    }
+
+    fn with_collection<'c>(
+        &'c self,
+        collection_name: &'c dyn CollectionName,
+    ) -> CollectionClient<'c, CUB> {
+        CollectionClient::new(self, collection_name.name())
     }
 }
 

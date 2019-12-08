@@ -110,3 +110,19 @@ impl Collection {
         }
     }
 }
+
+pub trait CollectionName {
+    fn name(&self) -> &str;
+}
+
+impl CollectionName for Collection {
+    fn name(&self) -> &str {
+        &self.id
+    }
+}
+
+impl CollectionName for dyn AsRef<str> {
+    fn name(&self) -> &str {
+        self.as_ref()
+    }
+}
