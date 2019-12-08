@@ -237,25 +237,7 @@ where
     fn with_database<'d>(&'d self, database_name: &'d dyn DatabaseName) -> DatabaseClient<'d, CUB>;
 }
 
-pub(crate) trait MainClient<CUB>
-where
-    CUB: crate::client2::CosmosUriBuilder,
-{
-    fn main_client(&self) -> &Client2<CUB>;
-}
-
-pub(crate) trait HyperClient<CUB>: MainClient<CUB>
-where
-    CUB: crate::client2::CosmosUriBuilder,
-{
-    fn hyper_client(
-        &self,
-    ) -> &hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>> {
-        self.main_client().hyper_client()
-    }
-}
-
-pub trait DatabaseTrait<'a, CUB>: HyperClient<CUB>
+pub trait DatabaseTrait<'a, CUB>
 where
     CUB: crate::client2::CosmosUriBuilder,
 {
@@ -267,7 +249,7 @@ where
     ) -> CollectionClient<'c, CUB>;
 }
 
-pub trait CollectionTrait<'a, CUB>: HyperClient<CUB>
+pub trait CollectionTrait<'a, CUB>
 where
     CUB: crate::client2::CosmosUriBuilder,
 {

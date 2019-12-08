@@ -3,7 +3,6 @@ use crate::prelude::*;
 use crate::request_response::ListDocumentsResponse;
 use crate::CollectionClient;
 use crate::CollectionClientRequired;
-use crate::{HyperClient, MainClient};
 use azure_sdk_core::errors::{check_status_extract_headers_and_body, AzureError};
 use azure_sdk_core::modify_conditions::IfMatchCondition;
 use azure_sdk_core::prelude::*;
@@ -455,7 +454,7 @@ impl<'a, 'b, CUB> ListDocumentsBuilder<'a, 'b, CUB>
 where
     CUB: CosmosUriBuilder,
 {
-    pub async fn finalize<T>(&self) -> Result<ListDocumentsResponse<T>, AzureError> {
+    pub async fn finalize<T>(&self) -> Result<Option<ListDocumentsResponse<T>>, AzureError> {
         let req = self
             .collection_client
             .main_client()
@@ -474,5 +473,10 @@ where
             StatusCode::OK,
         )
         .await?;
+
+        println!("{:?}", headers);
+        println!("{:?}", whole_body);
+
+        Ok(None)
     }
 }
