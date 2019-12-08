@@ -93,9 +93,25 @@ pub trait AIMOption {
     fn a_im(&self) -> bool;
 
     fn add_header(&self, builder: &mut Builder) {
-        if a_im() == true {
+        if self.a_im() == true {
             builder.header(HEADER_A_IM, "Incremental feed");
         }
+    }
+}
+
+pub trait AllowTentativeWritesSupport {
+    type O;
+    fn with_allow_tentative_writes(self, allow_tentative_writes: bool) -> Self::O;
+}
+
+pub trait AllowTentativeWritesOption {
+    fn allow_tentative_writes(&self) -> bool;
+
+    fn add_header(&self, builder: &mut Builder) {
+        builder.header(
+            HEADER_ALLOW_MULTIPLE_WRITES,
+            self.allow_tentative_writes().to_string(),
+        );
     }
 }
 
@@ -125,6 +141,21 @@ pub trait SessionTokenOption<'a> {
     fn add_header(&self, builder: &mut Builder) {
         if let Some(session_token) = self.session_token() {
             builder.header(HEADER_SESSION_TOKEN, session_token);
+        }
+    }
+}
+
+pub trait PartitionRangeIdSupport<'a> {
+    type O;
+    fn with_partition_range_id(self, partition_range_id: &'a str) -> Self::O;
+}
+
+pub trait PartitionRangeIdOption<'a> {
+    fn partition_range_id(&self) -> Option<&'a str>;
+
+    fn add_header(&self, builder: &mut Builder) {
+        if let Some(partition_range_id) = self.partition_range_id() {
+            builder.header(HEADER_DOCUMENTDB_PARTITIONRANGEID, partition_range_id);
         }
     }
 }

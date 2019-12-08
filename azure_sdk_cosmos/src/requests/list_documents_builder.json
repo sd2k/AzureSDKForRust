@@ -7,13 +7,14 @@
 		"crate::client2::{CosmosUriBuilder, ResourceType}",
 		"chrono::{DateTime, Utc}",
 		"crate::CollectionClient",
-		"crate::{QueryCrossPartitionSupport, QueryCrossPartitionOption, ContinuationOption, ContinuationSupport}",
+		"crate::prelude::*",
 		"crate::request_response::{Document, ListCollectionsResponse, ListDatabasesResponse}",
 		"crate::{CollectionClientRequired}",
 		"azure_sdk_core::errors::{check_status_extract_body, AzureError}",
 		"azure_sdk_core::prelude::*",
 		"hyper::StatusCode"
 	],
+	"inline": true,
 	"extra_types": [ "'a", "'b", "CUB" ],
 	"extra_wheres": ["CUB: CosmosUriBuilder" ],
 	"constructor_fields": [
@@ -30,14 +31,6 @@
 			"optional": true,
 			"trait_get": "IfMatchConditionOption<'b>",
 			"trait_set": "IfMatchConditionSupport<'b>"
-		},
-		{
-			"name": "query_cross_partition",
-			"field_type": "bool",
-			"optional": true,
-			"initializer": "false",
-			"trait_get": "QueryCrossPartitionOption",
-			"trait_set": "QueryCrossPartitionSupport"
 		},
 		{
 			"name": "if_modified_since",
@@ -61,11 +54,41 @@
 			"trait_set": "ActivityIdSupport<'b>"
 		},
 		{
+			"name": "consistency_level",
+			"field_type": "ConsistencyLevel",
+			"optional": true,
+			"trait_get": "ConsistencyLevelOption",
+			"trait_set": "ConsistencyLevelSupport"
+		},
+		{
 			"name": "continuation",
 			"field_type": "&'b str",
 			"optional": true,
 			"trait_get": "ContinuationOption<'b>",
 			"trait_set": "ContinuationSupport<'b>"
+		},
+		{
+			"name": "max_item_count",
+			"field_type": "i32",
+			"optional": true,
+			"initializer": "-1",
+			"trait_get": "MaxItemCountOption",
+			"trait_set": "MaxItemCountSupport"
+		},
+		{
+			"name": "partition_key",
+			"field_type": "&'b str",
+			"optional": true,
+			"trait_get": "PartitionKeyOption<'b>",
+			"trait_set": "PartitionKeySupport<'b>"
+		},
+		{
+			"name": "query_cross_partition",
+			"field_type": "bool",
+			"optional": true,
+			"initializer": "false",
+			"trait_get": "QueryCrossPartitionOption",
+			"trait_set": "QueryCrossPartitionSupport"
 		}
 	]
 }
