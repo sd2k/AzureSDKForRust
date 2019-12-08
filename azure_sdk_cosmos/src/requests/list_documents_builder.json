@@ -7,7 +7,7 @@
 		"crate::client2::{CosmosUriBuilder, ResourceType}",
 		"chrono::{DateTime, Utc}",
 		"crate::CollectionClient",
-		"crate::{QueryCrossPartitionSupport, QueryCrossPartitionOption}",
+		"crate::{QueryCrossPartitionSupport, QueryCrossPartitionOption, ContinuationOption, ContinuationSupport}",
 		"crate::request_response::{Document, ListCollectionsResponse, ListDatabasesResponse}",
 		"crate::{CollectionClientRequired}",
 		"azure_sdk_core::errors::{check_status_extract_body, AzureError}",
@@ -59,6 +59,13 @@
 			"optional": true,
 			"trait_get": "ActivityIdOption<'b>",
 			"trait_set": "ActivityIdSupport<'b>"
+		},
+		{
+			"name": "continuation",
+			"field_type": "&'b str",
+			"optional": true,
+			"trait_get": "ContinuationOption<'b>",
+			"trait_set": "ContinuationSupport<'b>"
 		}
 	]
 }

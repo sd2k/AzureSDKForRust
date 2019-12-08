@@ -4,7 +4,7 @@ use azure_sdk_core::{IfMatchConditionOption, IfMatchConditionSupport};
 use crate::client2::{CosmosUriBuilder, ResourceType};
 use chrono::{DateTime, Utc};
 use crate::CollectionClient;
-use crate::{QueryCrossPartitionSupport, QueryCrossPartitionOption};
+use crate::{QueryCrossPartitionSupport, QueryCrossPartitionOption, ContinuationOption, ContinuationSupport};
 use crate::request_response::{Document, ListCollectionsResponse, ListDatabasesResponse};
 use crate::{CollectionClientRequired};
 use azure_sdk_core::errors::{check_status_extract_body, AzureError};
@@ -22,6 +22,7 @@ where
 	if_modified_since: Option<&'b DateTime<Utc>>,
 	user_agent: Option<&'b str>,
 	activity_id: Option<&'b str>,
+	continuation: Option<&'b str>,
 }
 
 impl<'a, 'b, CUB> ListDocumentsBuilder<'a, 'b, CUB> where
@@ -35,6 +36,7 @@ impl<'a, 'b, CUB> ListDocumentsBuilder<'a, 'b, CUB> where
 			if_modified_since: None,
 			user_agent: None,
 			activity_id: None,
+			continuation: None,
 		}
 	}
 }
@@ -99,6 +101,16 @@ where
 	}
 }
 
+impl<'a, 'b, CUB> ContinuationOption<'b> for ListDocumentsBuilder<'a, 'b, CUB>
+where
+	CUB: CosmosUriBuilder,
+
+{
+	fn continuation(&self) -> Option<&'b str> {
+		self.continuation
+	}
+}
+
 impl<'a, 'b, CUB> IfMatchConditionSupport<'b> for ListDocumentsBuilder<'a, 'b, CUB>
 where
 	CUB: CosmosUriBuilder,
@@ -114,6 +126,7 @@ where
 				if_modified_since: self.if_modified_since,
 				user_agent: self.user_agent,
 				activity_id: self.activity_id,
+				continuation: self.continuation,
 		}
 	}
 }
@@ -133,6 +146,7 @@ where
 				if_modified_since: self.if_modified_since,
 				user_agent: self.user_agent,
 				activity_id: self.activity_id,
+				continuation: self.continuation,
 		}
 	}
 }
@@ -152,6 +166,7 @@ where
 				if_modified_since: Some(if_modified_since),
 				user_agent: self.user_agent,
 				activity_id: self.activity_id,
+				continuation: self.continuation,
 		}
 	}
 }
@@ -171,6 +186,7 @@ where
 				if_modified_since: self.if_modified_since,
 				user_agent: Some(user_agent),
 				activity_id: self.activity_id,
+				continuation: self.continuation,
 		}
 	}
 }
@@ -190,6 +206,27 @@ where
 				if_modified_since: self.if_modified_since,
 				user_agent: self.user_agent,
 				activity_id: Some(activity_id),
+				continuation: self.continuation,
+		}
+	}
+}
+
+impl<'a, 'b, CUB> ContinuationSupport<'b> for ListDocumentsBuilder<'a, 'b, CUB>
+where
+	CUB: CosmosUriBuilder,
+
+{
+	type O = ListDocumentsBuilder<'a, 'b, CUB>;
+
+	fn with_continuation(self, continuation: &'b str) -> Self::O {
+		ListDocumentsBuilder {
+				collection_client: self.collection_client,
+				if_match_condition: self.if_match_condition,
+				query_cross_partition: self.query_cross_partition,
+				if_modified_since: self.if_modified_since,
+				user_agent: self.user_agent,
+				activity_id: self.activity_id,
+				continuation: Some(continuation),
 		}
 	}
 }

@@ -6,5 +6,5 @@ pub use crate::database::DatabaseName;
 pub use crate::query::Query;
 pub use crate::{
     AuthorizationToken, Client, Client2, Client2Builder, ClientBuilder, CollectionTrait,
-    CosmosTrait, DatabaseTrait, Offer, TokenType,
+    ContinuationOption, ContinuationSupport, CosmosTrait, DatabaseTrait, Offer, TokenType,
 };

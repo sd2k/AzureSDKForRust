@@ -84,6 +84,21 @@ pub trait QueryCrossPartitionOption {
     }
 }
 
+pub trait ContinuationSupport<'a> {
+    type O;
+    fn with_continuation(self, continuation: &'a str) -> Self::O;
+}
+
+pub trait ContinuationOption<'a> {
+    fn continuation(&self) -> Option<&'a str>;
+
+    fn add_header(&self, builder: &mut Builder) {
+        if let Some(continuation) = self.continuation() {
+            builder.header(HEADER_CONTINUATION, continuation);
+        }
+    }
+}
+
 pub trait DatabaseClientRequired<'a, CUB>
 where
     CUB: crate::client2::CosmosUriBuilder,
