@@ -84,6 +84,51 @@ pub trait QueryCrossPartitionOption {
     }
 }
 
+pub trait AIMSupport {
+    type O;
+    fn with_a_im(self, a_im: bool) -> Self::O;
+}
+
+pub trait AIMOption {
+    fn a_im(&self) -> bool;
+
+    fn add_header(&self, builder: &mut Builder) {
+        if a_im() == true {
+            builder.header(HEADER_A_IM, "Incremental feed");
+        }
+    }
+}
+
+pub trait ConsistencyLevelSupport {
+    type O;
+    fn with_consistency_level(self, consistency_level: ConsistencyLevel) -> Self::O;
+}
+
+pub trait ConsistencyLevelOption {
+    fn consistency_level(&self) -> Option<ConsistencyLevel>;
+
+    fn add_header(&self, builder: &mut Builder) {
+        if let Some(consistency_level) = self.consistency_level() {
+            builder.header(HEADER_CONSISTENCY_LEVEL, consistency_level.to_string());
+        }
+    }
+}
+
+pub trait SessionTokenSupport<'a> {
+    type O;
+    fn with_session_token(self, session_token: &'a str) -> Self::O;
+}
+
+pub trait SessionTokenOption<'a> {
+    fn session_token(&self) -> Option<&'a str>;
+
+    fn add_header(&self, builder: &mut Builder) {
+        if let Some(session_token) = self.session_token() {
+            builder.header(HEADER_SESSION_TOKEN, session_token);
+        }
+    }
+}
+
 pub trait ContinuationSupport<'a> {
     type O;
     fn with_continuation(self, continuation: &'a str) -> Self::O;
@@ -95,6 +140,39 @@ pub trait ContinuationOption<'a> {
     fn add_header(&self, builder: &mut Builder) {
         if let Some(continuation) = self.continuation() {
             builder.header(HEADER_CONTINUATION, continuation);
+        }
+    }
+}
+
+pub trait MaxItemCountSupport {
+    type O;
+    fn with_max_item_count(self, max_item_count: i32) -> Self::O;
+}
+
+pub trait MaxItemCountOption {
+    fn max_item_count(&self) -> i32;
+
+    fn add_header(&self, builder: &mut Builder) {
+        if self.max_item_count() <= 0 {
+            builder.header(HEADER_MAX_ITEM_COUNT, -1);
+        } else {
+            builder.header(HEADER_MAX_ITEM_COUNT, self.max_item_count());
+        }
+    }
+}
+
+pub trait PartitionKeySupport<'a> {
+    type O;
+    fn with_partition_key(self, partition_key: &'a [&'a str]) -> Self::O;
+}
+
+pub trait PartitionKeyOption<'a> {
+    fn partition_key(&self) -> Option<&'a [&'a str]>;
+
+    fn add_header(&self, builder: &mut Builder) {
+        if let Some(partition_key) = self.partition_key() {
+            let serialized = serde_json::to_string(partition_key).unwrap();
+            builder.header(HEADER_DOCUMENTDB_PARTITIONKEY, serialized);
         }
     }
 }
