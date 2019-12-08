@@ -3,6 +3,7 @@ use crate::prelude::*;
 use crate::request_response::ListDocumentsResponse;
 use crate::CollectionClient;
 use crate::CollectionClientRequired;
+use crate::{HyperClient, MainClient};
 use azure_sdk_core::errors::{check_status_extract_headers_and_body, AzureError};
 use azure_sdk_core::modify_conditions::IfMatchCondition;
 use azure_sdk_core::prelude::*;

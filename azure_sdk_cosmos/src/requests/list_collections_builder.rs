@@ -3,6 +3,7 @@ use crate::request_response::ListCollectionsResponse;
 use crate::DatabaseClient;
 use crate::DatabaseClientRequired;
 use crate::DatabaseTrait;
+use crate::{HyperClient, MainClient};
 use azure_sdk_core::errors::{check_status_extract_body, AzureError};
 use hyper::StatusCode;
 
