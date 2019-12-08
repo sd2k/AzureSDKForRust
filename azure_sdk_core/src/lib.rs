@@ -33,7 +33,7 @@ use self::headers::{
 };
 use hyper::header::{
     HeaderName, CONTENT_ENCODING, CONTENT_LANGUAGE, CONTENT_LENGTH, CONTENT_TYPE, DATE, ETAG,
-    IF_MODIFIED_SINCE, LAST_MODIFIED, RANGE,
+    IF_MODIFIED_SINCE, LAST_MODIFIED, RANGE, USER_AGENT,
 };
 use uuid::Uuid;
 pub type RequestId = Uuid;
@@ -230,6 +230,21 @@ pub trait IfModifiedSinceOption<'a> {
     fn add_header(&self, builder: &mut Builder) {
         if let Some(if_modified_since) = self.if_modified_since() {
             builder.header(IF_MODIFIED_SINCE, if_modified_since.to_rfc2822());
+        }
+    }
+}
+
+pub trait UserAgentSupport<'a> {
+    type O;
+    fn with_user_agent(self, user_agent: &'a str) -> Self::O;
+}
+
+pub trait UserAgentOption<'a> {
+    fn user_agent(&self) -> Option<&'a str>;
+
+    fn add_header(&self, builder: &mut Builder) {
+        if let Some(user_agent) = self.user_agent() {
+            builder.header(USER_AGENT, user_agent);
         }
     }
 }
