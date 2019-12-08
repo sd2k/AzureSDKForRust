@@ -26,10 +26,10 @@ use std::str::FromStr;
 pub mod headers;
 pub mod range;
 use self::headers::{
-    ACCOUNT_KIND, APPEND_POSITION, BLOB_ACCESS_TIER, BLOB_CONTENT_LENGTH, BLOB_SEQUENCE_NUMBER,
-    CACHE_CONTROL, CLIENT_REQUEST_ID, CONTENT_DISPOSITION, CONTENT_MD5, DELETE_SNAPSHOTS,
-    DELETE_TYPE_PERMANENT, LEASE_BREAK_PERIOD, LEASE_DURATION, LEASE_ID, LEASE_TIME,
-    PROPOSED_LEASE_ID, REQUEST_ID, REQUEST_SERVER_ENCRYPTED, SKU_NAME,
+    ACCOUNT_KIND, ACTIVITY_ID, APPEND_POSITION, BLOB_ACCESS_TIER, BLOB_CONTENT_LENGTH,
+    BLOB_SEQUENCE_NUMBER, CACHE_CONTROL, CLIENT_REQUEST_ID, CONTENT_DISPOSITION, CONTENT_MD5,
+    DELETE_SNAPSHOTS, DELETE_TYPE_PERMANENT, LEASE_BREAK_PERIOD, LEASE_DURATION, LEASE_ID,
+    LEASE_TIME, PROPOSED_LEASE_ID, REQUEST_ID, REQUEST_SERVER_ENCRYPTED, SKU_NAME,
 };
 use hyper::header::{
     HeaderName, CONTENT_ENCODING, CONTENT_LANGUAGE, CONTENT_LENGTH, CONTENT_TYPE, DATE, ETAG,
@@ -245,6 +245,21 @@ pub trait UserAgentOption<'a> {
     fn add_header(&self, builder: &mut Builder) {
         if let Some(user_agent) = self.user_agent() {
             builder.header(USER_AGENT, user_agent);
+        }
+    }
+}
+
+pub trait ActivityIdSupport<'a> {
+    type O;
+    fn with_activity_id(self, activity_id: &'a str) -> Self::O;
+}
+
+pub trait ActivityIdOption<'a> {
+    fn activity_id(&self) -> Option<&'a str>;
+
+    fn add_header(&self, builder: &mut Builder) {
+        if let Some(activity_id) = self.activity_id() {
+            builder.header(ACTIVITY_ID, activity_id);
         }
     }
 }

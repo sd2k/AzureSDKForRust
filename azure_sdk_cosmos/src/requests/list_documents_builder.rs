@@ -20,6 +20,8 @@ where
 	if_match_condition: Option<IfMatchCondition<'b>>,
 	query_cross_partition: bool,
 	if_modified_since: Option<&'b DateTime<Utc>>,
+	user_agent: Option<&'b str>,
+	activity_id: Option<&'b str>,
 }
 
 impl<'a, 'b, CUB> ListDocumentsBuilder<'a, 'b, CUB> where
@@ -31,6 +33,8 @@ impl<'a, 'b, CUB> ListDocumentsBuilder<'a, 'b, CUB> where
 			if_match_condition: None,
 			query_cross_partition: false,
 			if_modified_since: None,
+			user_agent: None,
+			activity_id: None,
 		}
 	}
 }
@@ -75,6 +79,26 @@ where
 	}
 }
 
+impl<'a, 'b, CUB> UserAgentOption<'b> for ListDocumentsBuilder<'a, 'b, CUB>
+where
+	CUB: CosmosUriBuilder,
+
+{
+	fn user_agent(&self) -> Option<&'b str> {
+		self.user_agent
+	}
+}
+
+impl<'a, 'b, CUB> ActivityIdOption<'b> for ListDocumentsBuilder<'a, 'b, CUB>
+where
+	CUB: CosmosUriBuilder,
+
+{
+	fn activity_id(&self) -> Option<&'b str> {
+		self.activity_id
+	}
+}
+
 impl<'a, 'b, CUB> IfMatchConditionSupport<'b> for ListDocumentsBuilder<'a, 'b, CUB>
 where
 	CUB: CosmosUriBuilder,
@@ -88,6 +112,8 @@ where
 				if_match_condition: Some(if_match_condition),
 				query_cross_partition: self.query_cross_partition,
 				if_modified_since: self.if_modified_since,
+				user_agent: self.user_agent,
+				activity_id: self.activity_id,
 		}
 	}
 }
@@ -105,6 +131,8 @@ where
 				if_match_condition: self.if_match_condition,
 				query_cross_partition,
 				if_modified_since: self.if_modified_since,
+				user_agent: self.user_agent,
+				activity_id: self.activity_id,
 		}
 	}
 }
@@ -122,6 +150,46 @@ where
 				if_match_condition: self.if_match_condition,
 				query_cross_partition: self.query_cross_partition,
 				if_modified_since: Some(if_modified_since),
+				user_agent: self.user_agent,
+				activity_id: self.activity_id,
+		}
+	}
+}
+
+impl<'a, 'b, CUB> UserAgentSupport<'b> for ListDocumentsBuilder<'a, 'b, CUB>
+where
+	CUB: CosmosUriBuilder,
+
+{
+	type O = ListDocumentsBuilder<'a, 'b, CUB>;
+
+	fn with_user_agent(self, user_agent: &'b str) -> Self::O {
+		ListDocumentsBuilder {
+				collection_client: self.collection_client,
+				if_match_condition: self.if_match_condition,
+				query_cross_partition: self.query_cross_partition,
+				if_modified_since: self.if_modified_since,
+				user_agent: Some(user_agent),
+				activity_id: self.activity_id,
+		}
+	}
+}
+
+impl<'a, 'b, CUB> ActivityIdSupport<'b> for ListDocumentsBuilder<'a, 'b, CUB>
+where
+	CUB: CosmosUriBuilder,
+
+{
+	type O = ListDocumentsBuilder<'a, 'b, CUB>;
+
+	fn with_activity_id(self, activity_id: &'b str) -> Self::O {
+		ListDocumentsBuilder {
+				collection_client: self.collection_client,
+				if_match_condition: self.if_match_condition,
+				query_cross_partition: self.query_cross_partition,
+				if_modified_since: self.if_modified_since,
+				user_agent: self.user_agent,
+				activity_id: Some(activity_id),
 		}
 	}
 }

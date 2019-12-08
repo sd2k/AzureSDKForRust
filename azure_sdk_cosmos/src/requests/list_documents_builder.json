@@ -52,6 +52,13 @@
 			"optional": true,
 			"trait_get": "UserAgentOption<'b>",
 			"trait_set": "UserAgentSupport<'b>"
+		},
+		{
+			"name": "activity_id",
+			"field_type": "&'b str",
+			"optional": true,
+			"trait_get": "ActivityIdOption<'b>",
+			"trait_set": "ActivityIdSupport<'b>"
 		}
 	]
 }
