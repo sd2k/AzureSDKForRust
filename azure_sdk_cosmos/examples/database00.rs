@@ -22,6 +22,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let collections = client.with_database(&db).list().finalize().await?;
         for collection in collections.collections {
             println!("collection == {:?}", collection);
+
+            let documents = client
+                .with_database(&db)
+                .with_collection(&collection)
+                .list()
+                .finalize::<()>()
+                .await?;
+
+            println!("documents == {:?}", documents);
         }
     }
 

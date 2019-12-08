@@ -474,8 +474,8 @@ where
         )
         .await?;
 
-        println!("{:?}", headers);
-        println!("{:?}", whole_body);
+        println!("\nheader == {:?}", headers);
+        println!("\nwhole body == {:?}", whole_body);
 
         Ok(None)
     }
