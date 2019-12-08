@@ -31,9 +31,11 @@ pub use self::requests::*;
 
 use self::collection_client::CollectionClient;
 use self::database_client::DatabaseClient;
+use crate::client2::headers::*;
 use azure_sdk_core::enumerations;
 use azure_sdk_core::errors::TraversingError;
 use azure_sdk_core::parsing::FromStringOptional;
+use http::request::Builder;
 //use azure_sdk_core::No;
 use crate::collection::CollectionName;
 use crate::database::DatabaseName;
@@ -66,11 +68,34 @@ pub trait DatabaseRequired<'a> {
     fn database(&self) -> &'a str;
 }
 
+pub trait QueryCrossPartitionSupport {
+    type O;
+    fn with_query_cross_partition(self, query_cross_partition: bool) -> Self::O;
+}
+
+pub trait QueryCrossPartitionOption {
+    fn query_cross_partition(&self) -> bool;
+
+    fn add_header(&self, builder: &mut Builder) {
+        builder.header(
+            HEADER_DOCUMENTDB_QUERY_ENABLECROSSPARTITION,
+            self.query_cross_partition().to_string(),
+        );
+    }
+}
+
 pub trait DatabaseClientRequired<'a, CUB>
 where
     CUB: crate::client2::CosmosUriBuilder,
 {
     fn database_client(&self) -> &'a DatabaseClient<'a, CUB>;
+}
+
+pub trait CollectionClientRequired<'a, CUB>
+where
+    CUB: crate::client2::CosmosUriBuilder,
+{
+    fn collection_client(&self) -> &'a CollectionClient<'a, CUB>;
 }
 
 pub trait DatabaseSupport<'a> {

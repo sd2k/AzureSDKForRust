@@ -1,0 +1,42 @@
+{
+	"name": "ListDocumentsBuilder",
+	"derive": "Debug, Clone",
+	"uses": [
+		"azure_sdk_core::modify_conditions::IfMatchCondition",                                                                                    
+		"azure_sdk_core::{IfMatchConditionOption, IfMatchConditionSupport}",
+		"crate::client2::{CosmosUriBuilder, ResourceType}",
+		"crate::CollectionClient",
+		"crate::{QueryCrossPartitionSupport, QueryCrossPartitionOption}",
+		"crate::request_response::{Document, ListCollectionsResponse, ListDatabasesResponse}",
+		"crate::{CollectionClientRequired}",
+		"azure_sdk_core::errors::{check_status_extract_body, AzureError}",
+		"azure_sdk_core::prelude::*",
+		"hyper::StatusCode"
+	],
+	"extra_types": [ "'a", "CUB" ],
+	"extra_wheres": ["CUB: CosmosUriBuilder" ],
+	"constructor_fields": [
+		{
+			"name": "collection_client",
+			"field_type": "&'a CollectionClient<'a, CUB>",
+			"trait_get": "CollectionClientRequired<'a, CUB>"
+		}
+	],
+	"fields": [
+		{
+			"name": "if_match_condition",
+			"field_type": "IfMatchCondition<'a>",
+			"optional": true,
+			"trait_get": "IfMatchConditionOption<'a>",
+			"trait_set": "IfMatchConditionSupport<'a>"
+		},
+		{
+			"name": "query_cross_partition",
+			"field_type": "bool",
+			"optional": true,
+			"initializer": "false",
+			"trait_get": "QueryCrossPartitionOption",
+			"trait_set": "QueryCrossPartitionSupport"
+		}
+	]
+}
