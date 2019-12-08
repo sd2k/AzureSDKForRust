@@ -1,6 +1,5 @@
-use crate::client2::{CosmosUriBuilder, ResourceType};
+use crate::client2::CosmosUriBuilder;
 use crate::prelude::*;
-use crate::request_response::{Document, ListCollectionsResponse, ListDatabasesResponse};
 use crate::CollectionClient;
 use crate::CollectionClientRequired;
 use azure_sdk_core::errors::{check_status_extract_body, AzureError};
@@ -25,6 +24,8 @@ where
     max_item_count: i32,
     partition_key: Option<&'b [&'b str]>,
     query_cross_partition: bool,
+    a_im: bool,
+    partition_range_id: Option<&'b str>,
 }
 
 impl<'a, 'b, CUB> ListDocumentsBuilder<'a, 'b, CUB>
@@ -46,6 +47,8 @@ where
             max_item_count: -1,
             partition_key: None,
             query_cross_partition: false,
+            a_im: false,
+            partition_range_id: None,
         }
     }
 }
@@ -150,6 +153,26 @@ where
     }
 }
 
+impl<'a, 'b, CUB> AIMOption for ListDocumentsBuilder<'a, 'b, CUB>
+where
+    CUB: CosmosUriBuilder,
+{
+    #[inline]
+    fn a_im(&self) -> bool {
+        self.a_im
+    }
+}
+
+impl<'a, 'b, CUB> PartitionRangeIdOption<'b> for ListDocumentsBuilder<'a, 'b, CUB>
+where
+    CUB: CosmosUriBuilder,
+{
+    #[inline]
+    fn partition_range_id(&self) -> Option<&'b str> {
+        self.partition_range_id
+    }
+}
+
 impl<'a, 'b, CUB> IfMatchConditionSupport<'b> for ListDocumentsBuilder<'a, 'b, CUB>
 where
     CUB: CosmosUriBuilder,
@@ -169,6 +192,8 @@ where
             max_item_count: self.max_item_count,
             partition_key: self.partition_key,
             query_cross_partition: self.query_cross_partition,
+            a_im: self.a_im,
+            partition_range_id: self.partition_range_id,
         }
     }
 }
@@ -192,6 +217,8 @@ where
             max_item_count: self.max_item_count,
             partition_key: self.partition_key,
             query_cross_partition: self.query_cross_partition,
+            a_im: self.a_im,
+            partition_range_id: self.partition_range_id,
         }
     }
 }
@@ -215,6 +242,8 @@ where
             max_item_count: self.max_item_count,
             partition_key: self.partition_key,
             query_cross_partition: self.query_cross_partition,
+            a_im: self.a_im,
+            partition_range_id: self.partition_range_id,
         }
     }
 }
@@ -238,6 +267,8 @@ where
             max_item_count: self.max_item_count,
             partition_key: self.partition_key,
             query_cross_partition: self.query_cross_partition,
+            a_im: self.a_im,
+            partition_range_id: self.partition_range_id,
         }
     }
 }
@@ -261,6 +292,8 @@ where
             max_item_count: self.max_item_count,
             partition_key: self.partition_key,
             query_cross_partition: self.query_cross_partition,
+            a_im: self.a_im,
+            partition_range_id: self.partition_range_id,
         }
     }
 }
@@ -284,6 +317,8 @@ where
             max_item_count: self.max_item_count,
             partition_key: self.partition_key,
             query_cross_partition: self.query_cross_partition,
+            a_im: self.a_im,
+            partition_range_id: self.partition_range_id,
         }
     }
 }
@@ -307,6 +342,8 @@ where
             max_item_count,
             partition_key: self.partition_key,
             query_cross_partition: self.query_cross_partition,
+            a_im: self.a_im,
+            partition_range_id: self.partition_range_id,
         }
     }
 }
@@ -330,6 +367,8 @@ where
             max_item_count: self.max_item_count,
             partition_key: Some(partition_key),
             query_cross_partition: self.query_cross_partition,
+            a_im: self.a_im,
+            partition_range_id: self.partition_range_id,
         }
     }
 }
@@ -353,6 +392,58 @@ where
             max_item_count: self.max_item_count,
             partition_key: self.partition_key,
             query_cross_partition,
+            a_im: self.a_im,
+            partition_range_id: self.partition_range_id,
+        }
+    }
+}
+
+impl<'a, 'b, CUB> AIMSupport for ListDocumentsBuilder<'a, 'b, CUB>
+where
+    CUB: CosmosUriBuilder,
+{
+    type O = ListDocumentsBuilder<'a, 'b, CUB>;
+
+    #[inline]
+    fn with_a_im(self, a_im: bool) -> Self::O {
+        ListDocumentsBuilder {
+            collection_client: self.collection_client,
+            if_match_condition: self.if_match_condition,
+            if_modified_since: self.if_modified_since,
+            user_agent: self.user_agent,
+            activity_id: self.activity_id,
+            consistency_level: self.consistency_level,
+            continuation: self.continuation,
+            max_item_count: self.max_item_count,
+            partition_key: self.partition_key,
+            query_cross_partition: self.query_cross_partition,
+            a_im,
+            partition_range_id: self.partition_range_id,
+        }
+    }
+}
+
+impl<'a, 'b, CUB> PartitionRangeIdSupport<'b> for ListDocumentsBuilder<'a, 'b, CUB>
+where
+    CUB: CosmosUriBuilder,
+{
+    type O = ListDocumentsBuilder<'a, 'b, CUB>;
+
+    #[inline]
+    fn with_partition_range_id(self, partition_range_id: &'b str) -> Self::O {
+        ListDocumentsBuilder {
+            collection_client: self.collection_client,
+            if_match_condition: self.if_match_condition,
+            if_modified_since: self.if_modified_since,
+            user_agent: self.user_agent,
+            activity_id: self.activity_id,
+            consistency_level: self.consistency_level,
+            continuation: self.continuation,
+            max_item_count: self.max_item_count,
+            partition_key: self.partition_key,
+            query_cross_partition: self.query_cross_partition,
+            a_im: self.a_im,
+            partition_range_id: Some(partition_range_id),
         }
     }
 }

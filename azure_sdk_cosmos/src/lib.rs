@@ -34,15 +34,10 @@ pub use self::requests::*;
 use self::collection_client::CollectionClient;
 use self::database_client::DatabaseClient;
 use crate::client2::headers::*;
-use azure_sdk_core::enumerations;
-use azure_sdk_core::errors::TraversingError;
-use azure_sdk_core::parsing::FromStringOptional;
-use http::request::Builder;
-//use azure_sdk_core::No;
 use crate::collection::CollectionName;
 use crate::database::DatabaseName;
-use std::fmt;
-use std::str::FromStr;
+use azure_sdk_core::errors::TraversingError;
+use http::request::Builder;
 
 pub trait ClientRequired<'a, CUB>
 where
