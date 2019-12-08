@@ -114,7 +114,10 @@ pub trait ConsistencyLevelOption<'a> {
 
     fn add_header(&self, builder: &mut Builder) {
         if let Some(consistency_level) = self.consistency_level() {
-            builder.header(HEADER_CONSISTENCY_LEVEL, consistency_level.to_string());
+            builder.header(
+                HEADER_CONSISTENCY_LEVEL,
+                consistency_level.to_consistency_level_header(),
+            );
 
             // if we have a Session consistency level we make sure to pass
             // the x-ms-session-token header too.
