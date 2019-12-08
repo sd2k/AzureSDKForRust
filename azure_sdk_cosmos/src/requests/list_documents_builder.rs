@@ -20,10 +20,10 @@ where
     if_modified_since: Option<&'b DateTime<Utc>>,
     user_agent: Option<&'b str>,
     activity_id: Option<&'b str>,
-    consistency_level: Option<ConsistencyLevel>,
+    consistency_level: Option<ConsistencyLevel<'b>>,
     continuation: Option<&'b str>,
     max_item_count: i32,
-    partition_key: Option<&'b str>,
+    partition_key: Option<&'b [&'b str]>,
     query_cross_partition: bool,
 }
 
@@ -100,12 +100,12 @@ where
     }
 }
 
-impl<'a, 'b, CUB> ConsistencyLevelOption for ListDocumentsBuilder<'a, 'b, CUB>
+impl<'a, 'b, CUB> ConsistencyLevelOption<'b> for ListDocumentsBuilder<'a, 'b, CUB>
 where
     CUB: CosmosUriBuilder,
 {
     #[inline]
-    fn consistency_level(&self) -> Option<ConsistencyLevel> {
+    fn consistency_level(&self) -> Option<ConsistencyLevel<'b>> {
         self.consistency_level
     }
 }
@@ -135,7 +135,7 @@ where
     CUB: CosmosUriBuilder,
 {
     #[inline]
-    fn partition_key(&self) -> Option<&'b str> {
+    fn partition_key(&self) -> Option<&'b [&'b str]> {
         self.partition_key
     }
 }
@@ -242,14 +242,14 @@ where
     }
 }
 
-impl<'a, 'b, CUB> ConsistencyLevelSupport for ListDocumentsBuilder<'a, 'b, CUB>
+impl<'a, 'b, CUB> ConsistencyLevelSupport<'b> for ListDocumentsBuilder<'a, 'b, CUB>
 where
     CUB: CosmosUriBuilder,
 {
     type O = ListDocumentsBuilder<'a, 'b, CUB>;
 
     #[inline]
-    fn with_consistency_level(self, consistency_level: ConsistencyLevel) -> Self::O {
+    fn with_consistency_level(self, consistency_level: ConsistencyLevel<'b>) -> Self::O {
         ListDocumentsBuilder {
             collection_client: self.collection_client,
             if_match_condition: self.if_match_condition,
@@ -318,7 +318,7 @@ where
     type O = ListDocumentsBuilder<'a, 'b, CUB>;
 
     #[inline]
-    fn with_partition_key(self, partition_key: &'b str) -> Self::O {
+    fn with_partition_key(self, partition_key: &'b [&'b str]) -> Self::O {
         ListDocumentsBuilder {
             collection_client: self.collection_client,
             if_match_condition: self.if_match_condition,

@@ -55,10 +55,10 @@
 		},
 		{
 			"name": "consistency_level",
-			"field_type": "ConsistencyLevel",
+			"field_type": "ConsistencyLevel<'b>",
 			"optional": true,
-			"trait_get": "ConsistencyLevelOption",
-			"trait_set": "ConsistencyLevelSupport"
+			"trait_get": "ConsistencyLevelOption<'b>",
+			"trait_set": "ConsistencyLevelSupport<'b>"
 		},
 		{
 			"name": "continuation",
@@ -77,7 +77,7 @@
 		},
 		{
 			"name": "partition_key",
-			"field_type": "&'b str",
+			"field_type": "&'b [&'b str]",
 			"optional": true,
 			"trait_get": "PartitionKeyOption<'b>",
 			"trait_set": "PartitionKeySupport<'b>"

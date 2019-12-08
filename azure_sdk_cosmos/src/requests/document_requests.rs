@@ -175,11 +175,11 @@ impl QueryDocumentRequest {
         bool,
         HEADER_ALLOW_MULTIPLE_WRITES
     );
-    request_option!(
-        consistency_level,
-        ConsistencyLevel,
-        HEADER_CONSISTENCY_LEVEL
-    );
+    //request_option!(
+    //    consistency_level,
+    //    ConsistencyLevel,
+    //    HEADER_CONSISTENCY_LEVEL
+    //);
 
     pub async fn execute<T: DeserializeOwned>(
         self,
@@ -302,11 +302,11 @@ impl ListDocumentsRequest {
 
     request_option!(max_item_count, u64, HEADER_MAX_ITEM_COUNT);
     request_bytes_ref!(continuation_token, HEADER_CONTINUATION);
-    request_option!(
-        consistency_level,
-        ConsistencyLevel,
-        HEADER_CONSISTENCY_LEVEL
-    );
+    //request_option!(
+    //    consistency_level,
+    //    ConsistencyLevel,
+    //    HEADER_CONSISTENCY_LEVEL
+    //);
     request_bytes_ref!(session_token, HEADER_SESSION_TOKEN);
     request_bytes_ref!(if_none_match, header::IF_NONE_MATCH);
     request_bytes_ref!(partition_range_id, HEADER_DOCUMENTDB_PARTITIONRANGEID);

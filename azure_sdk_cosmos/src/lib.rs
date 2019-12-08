@@ -11,6 +11,7 @@ mod client;
 mod client2;
 pub mod collection;
 mod collection_client;
+mod consistency_level;
 mod create_collection_builder;
 pub mod database;
 mod database_client;
@@ -25,6 +26,7 @@ mod requests;
 pub use self::authorization_token::*;
 pub use self::client::*;
 pub use self::client2::{Client2, Client2Builder};
+pub use self::consistency_level::ConsistencyLevel;
 pub use self::offer::Offer;
 pub use self::partition_key::*;
 pub use self::requests::*;
@@ -41,14 +43,6 @@ use crate::collection::CollectionName;
 use crate::database::DatabaseName;
 use std::fmt;
 use std::str::FromStr;
-
-create_enum!(
-    ConsistencyLevel,
-    (Strong, "Strong"),
-    (Bounded, "Bounded"),
-    (Session, "Session"),
-    (Eventual, "Eventual")
-);
 
 pub trait ClientRequired<'a, CUB>
 where
@@ -115,13 +109,13 @@ pub trait AllowTentativeWritesOption {
     }
 }
 
-pub trait ConsistencyLevelSupport {
+pub trait ConsistencyLevelSupport<'a> {
     type O;
-    fn with_consistency_level(self, consistency_level: ConsistencyLevel) -> Self::O;
+    fn with_consistency_level(self, consistency_level: ConsistencyLevel<'a>) -> Self::O;
 }
 
-pub trait ConsistencyLevelOption {
-    fn consistency_level(&self) -> Option<ConsistencyLevel>;
+pub trait ConsistencyLevelOption<'a> {
+    fn consistency_level(&self) -> Option<ConsistencyLevel<'a>>;
 
     fn add_header(&self, builder: &mut Builder) {
         if let Some(consistency_level) = self.consistency_level() {
