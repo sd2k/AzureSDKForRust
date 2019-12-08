@@ -4,12 +4,12 @@
 	"uses": [
 		"azure_sdk_core::modify_conditions::IfMatchCondition",                                                                                    
 		"azure_sdk_core::{IfMatchConditionOption, IfMatchConditionSupport}",
-		"crate::client2::CosmosUriBuilder",
+		"crate::client2::{ResourceType, CosmosUriBuilder}",
 		"chrono::{DateTime, Utc}",
 		"crate::CollectionClient",
 		"crate::prelude::*",
 		"crate::{CollectionClientRequired}",
-		"azure_sdk_core::errors::{check_status_extract_body, AzureError}",
+		"azure_sdk_core::errors::{check_status_extract_headers_and_body, AzureError}",
 		"azure_sdk_core::prelude::*",
 		"hyper::StatusCode"
 	],

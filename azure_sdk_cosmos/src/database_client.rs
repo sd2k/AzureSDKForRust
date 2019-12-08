@@ -7,7 +7,7 @@ pub struct DatabaseClient<'a, CUB>
 where
     CUB: CosmosUriBuilder,
 {
-    pub(crate) client: &'a Client2<CUB>,
+    main_client: &'a Client2<CUB>,
     database: &'a str,
 }
 
@@ -15,8 +15,21 @@ impl<'a, CUB> DatabaseClient<'a, CUB>
 where
     CUB: CosmosUriBuilder,
 {
-    pub(crate) fn new(client: &'a Client2<CUB>, database: &'a str) -> Self {
-        DatabaseClient { client, database }
+    pub(crate) fn new(main_client: &'a Client2<CUB>, database: &'a str) -> Self {
+        DatabaseClient {
+            main_client,
+            database,
+        }
+    }
+
+    pub(crate) fn main_client(&self) -> &Client2<CUB> {
+        self.main_client
+    }
+
+    pub(crate) fn hyper_client(
+        &self,
+    ) -> &hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>> {
+        self.main_client().hyper_client()
     }
 }
 
@@ -39,5 +52,3 @@ where
         CollectionClient::new(self, collection_name.name())
     }
 }
-
-impl<'a, CUB> DatabaseClient<'a, CUB> where CUB: CosmosUriBuilder {}

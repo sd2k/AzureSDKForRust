@@ -1,4 +1,4 @@
-use crate::client2::CosmosUriBuilder;
+use crate::client2::{Client2, CosmosUriBuilder};
 use crate::database_client::DatabaseClient;
 use crate::requests::ListDocumentsBuilder;
 use crate::{CollectionTrait, DatabaseTrait};
@@ -8,7 +8,7 @@ pub struct CollectionClient<'a, CUB>
 where
     CUB: CosmosUriBuilder,
 {
-    pub(crate) client: &'a DatabaseClient<'a, CUB>,
+    database_client: &'a DatabaseClient<'a, CUB>,
     collection: &'a str,
 }
 
@@ -16,8 +16,21 @@ impl<'a, CUB> CollectionClient<'a, CUB>
 where
     CUB: CosmosUriBuilder,
 {
-    pub(crate) fn new(client: &'a DatabaseClient<'a, CUB>, collection: &'a str) -> Self {
-        CollectionClient { client, collection }
+    pub(crate) fn new(database_client: &'a DatabaseClient<'a, CUB>, collection: &'a str) -> Self {
+        CollectionClient {
+            database_client,
+            collection,
+        }
+    }
+
+    pub(crate) fn main_client(&self) -> &Client2<CUB> {
+        self.database_client.main_client()
+    }
+
+    pub(crate) fn hyper_client(
+        &self,
+    ) -> &hyper::Client<hyper_rustls::HttpsConnector<hyper::client::HttpConnector>> {
+        self.main_client().hyper_client()
     }
 }
 

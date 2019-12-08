@@ -46,7 +46,7 @@ where
         trace!("ListCollectionsBuilder::finalize called");
         let request = self
             .database_client
-            .client
+            .main_client()
             .prepare_request(
                 &format!("dbs/{}/colls", self.database_client.database()),
                 hyper::Method::GET,
@@ -56,7 +56,7 @@ where
 
         trace!("request prepared == {:?}", request);
 
-        let future_response = self.database_client.client.hyper_client().request(request);
+        let future_response = self.database_client.hyper_client().request(request);
         let body = check_status_extract_body(future_response, StatusCode::OK).await?;
         let response = serde_json::from_str::<ListCollectionsResponse>(&body)?;
         Ok(response)

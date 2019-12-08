@@ -1,8 +1,9 @@
-use crate::client2::CosmosUriBuilder;
+use crate::client2::{CosmosUriBuilder, ResourceType};
 use crate::prelude::*;
+use crate::request_response::ListDocumentsResponse;
 use crate::CollectionClient;
 use crate::CollectionClientRequired;
-use azure_sdk_core::errors::{check_status_extract_body, AzureError};
+use azure_sdk_core::errors::{check_status_extract_headers_and_body, AzureError};
 use azure_sdk_core::modify_conditions::IfMatchCondition;
 use azure_sdk_core::prelude::*;
 use azure_sdk_core::{IfMatchConditionOption, IfMatchConditionSupport};
@@ -448,8 +449,29 @@ where
     }
 }
 
-// methods callable regardless
-impl<'a, 'b, CUB> ListDocumentsBuilder<'a, 'b, CUB> where CUB: CosmosUriBuilder {}
-
 // methods callable only when every mandatory field has been filled
-impl<'a, 'b, CUB> ListDocumentsBuilder<'a, 'b, CUB> where CUB: CosmosUriBuilder {}
+impl<'a, 'b, CUB> ListDocumentsBuilder<'a, 'b, CUB>
+where
+    CUB: CosmosUriBuilder,
+{
+    pub async fn finalize<T>(&self) -> Result<ListDocumentsResponse<T>, AzureError> {
+        let req = self
+            .collection_client
+            .main_client()
+            .prepare_request(
+                &format!(
+                    "dbs/{}/colls/{}/docs",
+                    self.collection_client.database(),
+                    self.collection_client.collection()
+                ),
+                hyper::Method::GET,
+                ResourceType::Documents,
+            )
+            .body(hyper::Body::empty())?;
+        let (headers, whole_body) = check_status_extract_headers_and_body(
+            self.collection_client.hyper_client().request(req),
+            StatusCode::OK,
+        )
+        .await?;
+    }
+}
