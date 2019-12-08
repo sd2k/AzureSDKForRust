@@ -10,6 +10,5 @@ pub use crate::{
     ConsistencyLevel, ConsistencyLevelOption, ConsistencyLevelSupport, ContinuationOption,
     ContinuationSupport, CosmosTrait, DatabaseTrait, MaxItemCountOption, MaxItemCountSupport,
     Offer, PartitionKeyOption, PartitionKeySupport, PartitionRangeIdOption,
-    PartitionRangeIdSupport, QueryCrossPartitionOption, QueryCrossPartitionSupport,
-    SessionTokenOption, SessionTokenSupport, TokenType,
+    PartitionRangeIdSupport, QueryCrossPartitionOption, QueryCrossPartitionSupport, TokenType,
 };

@@ -120,21 +120,12 @@ pub trait ConsistencyLevelOption<'a> {
     fn add_header(&self, builder: &mut Builder) {
         if let Some(consistency_level) = self.consistency_level() {
             builder.header(HEADER_CONSISTENCY_LEVEL, consistency_level.to_string());
-        }
-    }
-}
 
-pub trait SessionTokenSupport<'a> {
-    type O;
-    fn with_session_token(self, session_token: &'a str) -> Self::O;
-}
-
-pub trait SessionTokenOption<'a> {
-    fn session_token(&self) -> Option<&'a str>;
-
-    fn add_header(&self, builder: &mut Builder) {
-        if let Some(session_token) = self.session_token() {
-            builder.header(HEADER_SESSION_TOKEN, session_token);
+            // if we have a Session consistency level we make sure to pass
+            // the x-ms-session-token header too.
+            if let ConsistencyLevel::Session(session_token) = consistency_level {
+                builder.header(HEADER_SESSION_TOKEN, session_token);
+            }
         }
     }
 }
