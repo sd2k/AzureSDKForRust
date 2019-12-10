@@ -1,5 +1,21 @@
 use super::*;
 
+pub fn request_charge_from_headers(headers: &HeaderMap) -> Result<f64, AzureError> {
+    Ok(headers
+        .get(HEADER_REQUEST_CHARGE)
+        .ok_or_else(|| AzureError::HeaderNotFound(HEADER_REQUEST_CHARGE.to_owned()))?
+        .to_str()?
+        .parse()?)
+}
+
+pub fn request_item_count_from_headers(headers: &HeaderMap) -> Result<u64, AzureError> {
+    Ok(headers
+        .get(HEADER_ITEM_COUNT)
+        .ok_or_else(|| AzureError::HeaderNotFound(HEADER_ITEM_COUNT.to_owned()))?
+        .to_str()?
+        .parse()?)
+}
+
 pub struct CreateDocumentRequest {
     hyper_client: HyperClient,
     request: RequestBuilder,
@@ -357,6 +373,8 @@ impl ListDocumentsRequest {
                 .get(header::ETAG)
                 .and_then(|v| v.to_str().ok())
                 .map(|s| s.to_owned()),
+            session_token: "<TODO>".to_owned(), //TODO
+            item_count: request_item_count_from_headers(headers)?,
         };
         debug!("ado == {:?}", ado);
 
@@ -520,4 +538,110 @@ fn derive_request_charge(headers: &HeaderMap) -> f64 {
         .unwrap()
         .parse()
         .unwrap()
+}
+
+pub(crate) fn documents_from_headers_and_body<T>(
+    headers: &HeaderMap,
+    body: &[u8],
+) -> Result<ListDocumentsResponse<T>, AzureError>
+where
+    T: DeserializeOwned,
+{
+    debug!("headers == {:?}", headers);
+
+    let ado = ListDocumentsResponseAdditionalHeaders {
+        // This match just tries to extract the info and convert it
+        // into the correct type. It is complicated because headers
+        // can be missing and also because headers.get<T> will return
+        // a T reference (&T) so we need to cast it into the
+        // correct type and clone it (in this case into a &str that will
+        // become a String using to_owned())
+        continuation_token: derive_continuation_token(headers),
+        // Here we assume the Charge header to always be present.
+        // If problems arise we
+        // will change the field to be Option(al).
+        charge: derive_request_charge(headers),
+        etag: headers
+            .get(header::ETAG)
+            .and_then(|v| v.to_str().ok())
+            .map(|s| s.to_owned()),
+        session_token: "<TODO>".to_owned(), //TODO
+        item_count: request_item_count_from_headers(headers)?,
+    };
+    println!("ado == {:?}", ado);
+
+    // we will proceed in three steps:
+    // 1- Deserialize the result as DocumentAttributes. The extra field will be ignored.
+    // 2- Deserialize the result a type T. The extra fields will be ignored.
+    // 3- Zip 1 and 2 in the resulting structure.
+    // There is a lot of data movement here, let's hope the compiler is smarter than me :)
+    let document_attributes = serde_json::from_slice::<ListDocumentsResponseAttributes>(body)?;
+    let entries = serde_json::from_slice::<ListDocumentsResponseEntities<T>>(body)?;
+
+    println!("document_attributes == {:?}", document_attributes);
+
+    let documents = document_attributes
+        .documents
+        .into_iter()
+        .zip(entries.entities.into_iter())
+        .map(|(da, e)| Document {
+            document_attributes: da,
+            entity: e,
+        })
+        .collect();
+
+    Ok(ListDocumentsResponse {
+        rid: document_attributes.rid,
+        documents,
+        additional_headers: ado,
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const BODY: &'static str = "
+{
+    \"_rid\": \"3iNTAJKxVCk=\",
+    \"Documents\": [
+        {
+            \"color\": \"red\",
+            \"myvalue\": \"#f00\",
+            \"id\": \"c5d11a65-2e5a-3d9f-4de8-2447259dff38\",
+            \"_rid\": \"3iNTAJKxVCkBAAAAAAAAAA==\",
+            \"_self\": \"dbs/3iNTAA==/colls/3iNTAJKxVCk=/docs/3iNTAJKxVCkBAAAAAAAAAA==/\",
+            \"_etag\": \"\\\"0100eb0a-0000-0c00-0000-5ded4fe30000\\\"\",
+            \"_attachments\": \"attachments/\",
+            \"_ts\": 1575833571
+        },
+        {
+            \"color\": \"yellow\",
+            \"myvalue\": \"#ff0\",
+            \"id\": \"894dd5ff-573e-f38a-b8c4-5eae5071c900\",
+            \"_rid\": \"3iNTAJKxVCkCAAAAAAAAAA==\",
+            \"_self\": \"dbs/3iNTAA==/colls/3iNTAJKxVCk=/docs/3iNTAJKxVCkCAAAAAAAAAA==/\",
+            \"_etag\": \"\\\"0100ec0a-0000-0c00-0000-5ded4fe30000\\\"\",
+            \"_attachments\": \"attachments/\",
+            \"_ts\": 1575833571
+        }
+    ],
+    \"_count\": 7
+}";
+
+    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+    struct MyStruct {
+        id: String,
+        color: String,
+        myvalue: String,
+    }
+
+    #[test]
+    fn test_list_document() {
+        let document_attributes =
+            serde_json::from_slice::<ListDocumentsResponseAttributes>(BODY.as_bytes()).unwrap();
+        let entries =
+            serde_json::from_slice::<ListDocumentsResponseEntities<MyStruct>>(BODY.as_bytes())
+                .unwrap();
+    }
 }

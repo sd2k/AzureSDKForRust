@@ -1,8 +1,11 @@
 use crate::{
     client::headers::HEADER_REQUEST_CHARGE, collection::Collection, database::Database,
-    document::DocumentAttributes,
+    document::DocumentAttributes, request_charge_from_headers, request_item_count_from_headers,
 };
-use azure_sdk_core::{errors::AzureError, util::HeaderMapExt};
+use azure_sdk_core::{
+    continuation_token_from_headers_optional, errors::AzureError, etag_from_headers_optional,
+    session_token_from_headers, util::HeaderMapExt, SessionToken,
+};
 use http::header::HeaderMap;
 use serde::de::DeserializeOwned;
 
@@ -68,6 +71,8 @@ pub struct ListDocumentsResponseAdditionalHeaders {
     pub continuation_token: Option<String>,
     pub charge: f64,
     pub etag: Option<String>,
+    pub session_token: SessionToken,
+    pub item_count: u64,
 }
 
 #[derive(Debug, Clone)]
@@ -150,15 +155,11 @@ where
             // a T reference (&T) so we need to cast it into the
             // correct type and clone it (in this case into a &str that will
             // become a String using to_owned())
-            continuation_token: None, //TODO derive_continuation_token(headers),
-            // Here we assume the Charge header to always be present.
-            // If problems arise we
-            // will change the field to be Option(al).
-            charge: 0.0, //TODO derive_request_charge(headers),
-            etag: None,  //TODO headers
-                         //.get(header::ETAG)
-                         //.and_then(|v| v.to_str().ok())
-                         //.map(|s| s.to_owned()),
+            continuation_token: continuation_token_from_headers_optional(headers)?,
+            charge: request_charge_from_headers(headers)?,
+            etag: etag_from_headers_optional(headers)?,
+            session_token: session_token_from_headers(headers)?,
+            item_count: request_item_count_from_headers(headers)?,
         };
         debug!("ado == {:?}", ado);
 

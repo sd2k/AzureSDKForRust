@@ -180,6 +180,11 @@ quick_error! {
             display("Parse int error: {}", err)
             cause(err)
         }
+        ParseFloatError(err: std::num::ParseFloatError) {
+            from()
+            display("Parse float error: {}", err)
+            cause(err)
+        }
         ParseError(err: ParseError){
             from()
             display("Parse error")

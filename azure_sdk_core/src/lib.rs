@@ -28,8 +28,9 @@ pub mod range;
 use self::headers::{
     ACCOUNT_KIND, ACTIVITY_ID, APPEND_POSITION, BLOB_ACCESS_TIER, BLOB_CONTENT_LENGTH,
     BLOB_SEQUENCE_NUMBER, CACHE_CONTROL, CLIENT_REQUEST_ID, CONTENT_DISPOSITION, CONTENT_MD5,
-    DELETE_SNAPSHOTS, DELETE_TYPE_PERMANENT, LEASE_BREAK_PERIOD, LEASE_DURATION, LEASE_ID,
-    LEASE_TIME, PROPOSED_LEASE_ID, REQUEST_ID, REQUEST_SERVER_ENCRYPTED, SKU_NAME,
+    DELETE_SNAPSHOTS, DELETE_TYPE_PERMANENT, HEADER_CONTINUATION, LEASE_BREAK_PERIOD,
+    LEASE_DURATION, LEASE_ID, LEASE_TIME, PROPOSED_LEASE_ID, REQUEST_ID, REQUEST_SERVER_ENCRYPTED,
+    SESSION_TOKEN, SKU_NAME,
 };
 use hyper::header::{
     HeaderName, CONTENT_ENCODING, CONTENT_LANGUAGE, CONTENT_LENGTH, CONTENT_TYPE, DATE, ETAG,
@@ -37,6 +38,7 @@ use hyper::header::{
 };
 use uuid::Uuid;
 pub type RequestId = Uuid;
+pub type SessionToken = String;
 use crate::errors::{check_status_extract_body_2, AzureError, TraversingError};
 use crate::lease::LeaseId;
 use crate::parsing::FromStringOptional;
@@ -861,6 +863,16 @@ pub fn last_modified_from_headers(headers: &HeaderMap) -> Result<DateTime<Utc>, 
     Ok(last_modified)
 }
 
+pub fn continuation_token_from_headers_optional(
+    headers: &HeaderMap,
+) -> Result<Option<String>, AzureError> {
+    if let Some(hc) = headers.get(HEADER_CONTINUATION) {
+        Ok(Some(hc.to_str()?.to_owned()))
+    } else {
+        Ok(None)
+    }
+}
+
 pub fn date_from_headers(headers: &HeaderMap) -> Result<DateTime<Utc>, AzureError> {
     let date = headers
         .get(DATE)
@@ -950,6 +962,14 @@ pub fn sequence_number_from_headers(headers: &HeaderMap) -> Result<u64, AzureErr
 
     trace!("sequence_number == {:?}", sequence_number);
     Ok(sequence_number)
+}
+
+pub fn session_token_from_headers(headers: &HeaderMap) -> Result<SessionToken, AzureError> {
+    Ok(headers
+        .get(SESSION_TOKEN)
+        .ok_or_else(|| AzureError::HeaderNotFound(SESSION_TOKEN.to_owned()))?
+        .to_str()?
+        .to_owned())
 }
 
 pub fn request_server_encrypted_from_headers(headers: &HeaderMap) -> Result<bool, AzureError> {
