@@ -73,7 +73,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             let ip = IncludedPath {
                 path: "/*".to_owned(),
-                indexes: vec![indexes],
+                indexes: Some(vec![indexes]),
             };
 
             let ip = IndexingPolicy {

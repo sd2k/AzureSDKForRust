@@ -31,7 +31,7 @@ hyper                    = { version        = "0.13.0-alpha.4" , features  = ["u
 log                      = "0.4"
 mime                     = "0.3"
 quick-error              = "1.2"
-serde                    = "1.0"
+serde                    = { version = "1.0" }
 serde_derive             = "1.0"
 serde_json               = "1.0"
 serde-xml-rs             = "0.3"
@@ -46,6 +46,7 @@ hyper-rustls             = { version        = "0.19.0-alpha.3" , features  = [] 
 futures-executor-preview = "0.3.0-alpha.19"
 tokio                    = "0.2.0-alpha.6"
 futures-util             = "0.3.1"
+serde                    = { version = "1.0", features = ["derive"] }
 
 [features]
 test_e2e                 = []

@@ -9,6 +9,8 @@ use azure_sdk_core::prelude::*;
 use azure_sdk_core::{IfMatchConditionOption, IfMatchConditionSupport};
 use chrono::{DateTime, Utc};
 use hyper::StatusCode;
+use serde::de::DeserializeOwned;
+use std::convert::TryFrom;
 
 #[derive(Debug, Clone)]
 pub struct ListDocumentsBuilder<'a, 'b, CUB>
@@ -454,7 +456,10 @@ impl<'a, 'b, CUB> ListDocumentsBuilder<'a, 'b, CUB>
 where
     CUB: CosmosUriBuilder,
 {
-    pub async fn finalize<T>(&self) -> Result<Option<ListDocumentsResponse<T>>, AzureError> {
+    pub async fn finalize<T>(&self) -> Result<ListDocumentsResponse<T>, AzureError>
+    where
+        T: DeserializeOwned,
+    {
         let req = self
             .collection_client
             .main_client()
@@ -474,9 +479,11 @@ where
         )
         .await?;
 
-        println!("\nheader == {:?}", headers);
-        println!("\nwhole body == {:?}", whole_body);
+        println!("\nheaders == {:?}", headers);
+        println!("\nwhole body == {:#?}", whole_body);
 
-        Ok(None)
+        let resp = ListDocumentsResponse::try_from((&headers, &whole_body as &[u8]))?;
+
+        Ok(resp)
     }
 }

@@ -1,5 +1,13 @@
 use azure_sdk_cosmos::prelude::*;
+use serde::{Deserialize, Serialize};
 use std::error::Error;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+struct MyStruct {
+    id: String,
+    color: String,
+    myvalue: String,
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -27,7 +35,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 .with_database(&db)
                 .with_collection(&collection)
                 .list()
-                .finalize::<()>()
+                .finalize::<MyStruct>()
                 .await?;
 
             println!("documents == {:?}", documents);
