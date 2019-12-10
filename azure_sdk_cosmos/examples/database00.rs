@@ -9,6 +9,11 @@ struct MyStruct {
     myvalue: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+struct MyStruct2 {
+    id: String,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // First we retrieve the account name and master key from environment variables.
@@ -35,10 +40,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 .with_database(&db)
                 .with_collection(&collection)
                 .list()
-                .finalize::<MyStruct>()
+                .as_entity::<MyStruct>()
                 .await?;
 
-            println!("documents == {:?}", documents);
+            println!("\ndocuments == {:?}", documents);
+
+            let documents = client
+                .with_database(&db)
+                .with_collection(&collection)
+                .list()
+                .as_json()
+                .await?;
+
+            println!("\n\nocuments == {:?}", documents);
         }
     }
 

@@ -138,6 +138,71 @@ pub struct ExecuteStoredProcedureResponse<T> {
     pub additional_headers: DocumentAdditionalHeaders,
 }
 
+impl std::convert::TryFrom<&HeaderMap> for ListDocumentsResponseAdditionalHeaders {
+    type Error = AzureError;
+    fn try_from(headers: &HeaderMap) -> Result<Self, Self::Error> {
+        debug!("headers == {:?}", headers);
+
+        let ado = ListDocumentsResponseAdditionalHeaders {
+            continuation_token: continuation_token_from_headers_optional(headers)?,
+            charge: request_charge_from_headers(headers)?,
+            etag: etag_from_headers_optional(headers)?,
+            session_token: session_token_from_headers(headers)?,
+            item_count: request_item_count_from_headers(headers)?,
+        };
+        debug!("ado == {:?}", ado);
+
+        Ok(ado)
+    }
+}
+
+impl std::convert::TryFrom<&[u8]> for ListDocumentsResponseAttributes {
+    type Error = AzureError;
+    fn try_from(body: &[u8]) -> Result<Self, Self::Error> {
+        Ok(serde_json::from_slice(body)?)
+    }
+}
+
+impl<T> std::convert::TryFrom<&[u8]> for ListDocumentsResponseEntities<T>
+where
+    T: DeserializeOwned,
+{
+    type Error = AzureError;
+    fn try_from(body: &[u8]) -> Result<Self, Self::Error> {
+        Ok(serde_json::from_slice(body)?)
+    }
+}
+
+impl ListDocumentsResponseEntities<String> {
+    pub(crate) fn to_string(body: &[u8]) -> Result<Self, AzureError> {
+        let body = std::str::from_utf8(body)?;
+        Ok(ListDocumentsResponseEntities {
+            rid: "".to_owned(),
+            entities: vec![body.to_owned()],
+        })
+    }
+}
+
+impl ListDocumentsResponseEntities<serde_json::Value> {
+    pub(crate) fn to_json(body: &[u8]) -> Result<Self, AzureError> {
+        use serde_json::{from_slice, Value};
+        let val: Value = from_slice(body)?;
+        let val2 = &val["Documents"];
+
+        if let Value::Array(val) = val2 {
+            Ok(ListDocumentsResponseEntities {
+                rid: "".to_owned(),
+                entities: val.to_vec(),
+            })
+        } else {
+            Ok(ListDocumentsResponseEntities {
+                rid: "".to_owned(),
+                entities: vec![from_slice(body)?],
+            })
+        }
+    }
+}
+
 impl<T> std::convert::TryFrom<(&HeaderMap, &[u8])> for ListDocumentsResponse<T>
 where
     T: DeserializeOwned,
@@ -148,28 +213,15 @@ where
         let body = value.1;
         debug!("headers == {:?}", headers);
 
-        let ado = ListDocumentsResponseAdditionalHeaders {
-            // This match just tries to extract the info and convert it
-            // into the correct type. It is complicated because headers
-            // can be missing and also because headers.get<T> will return
-            // a T reference (&T) so we need to cast it into the
-            // correct type and clone it (in this case into a &str that will
-            // become a String using to_owned())
-            continuation_token: continuation_token_from_headers_optional(headers)?,
-            charge: request_charge_from_headers(headers)?,
-            etag: etag_from_headers_optional(headers)?,
-            session_token: session_token_from_headers(headers)?,
-            item_count: request_item_count_from_headers(headers)?,
-        };
-        debug!("ado == {:?}", ado);
+        let ado = ListDocumentsResponseAdditionalHeaders::try_from(headers)?;
 
         // we will proceed in three steps:
         // 1- Deserialize the result as DocumentAttributes. The extra field will be ignored.
         // 2- Deserialize the result a type T. The extra fields will be ignored.
         // 3- Zip 1 and 2 in the resulting structure.
         // There is a lot of data movement here, let's hope the compiler is smarter than me :)
-        let document_attributes = serde_json::from_slice::<ListDocumentsResponseAttributes>(body)?;
-        let entries = serde_json::from_slice::<ListDocumentsResponseEntities<T>>(body)?;
+        let document_attributes = ListDocumentsResponseAttributes::try_from(body)?;
+        let entries = ListDocumentsResponseEntities::try_from(body)?;
 
         debug!("document_attributes == {:?}", document_attributes);
 

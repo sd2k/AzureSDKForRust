@@ -10,6 +10,7 @@ use azure_sdk_core::{IfMatchConditionOption, IfMatchConditionSupport};
 use chrono::{DateTime, Utc};
 use hyper::StatusCode;
 use serde::de::DeserializeOwned;
+use serde_json::Value;
 use std::convert::TryFrom;
 
 #[derive(Debug, Clone)]
@@ -456,7 +457,7 @@ impl<'a, 'b, CUB> ListDocumentsBuilder<'a, 'b, CUB>
 where
     CUB: CosmosUriBuilder,
 {
-    pub async fn finalize<T>(&self) -> Result<ListDocumentsResponse<T>, AzureError>
+    pub async fn as_entity<T>(&self) -> Result<ListDocumentsResponse<T>, AzureError>
     where
         T: DeserializeOwned,
     {
@@ -485,5 +486,66 @@ where
         let resp = ListDocumentsResponse::try_from((&headers, &whole_body as &[u8]))?;
 
         Ok(resp)
+    }
+
+    pub async fn as_json(&self) -> Result<ListDocumentsResponse<String>, AzureError> {
+        use crate::request_response::Document;
+        use crate::request_response::ListDocumentsResponseAdditionalHeaders;
+        use crate::request_response::ListDocumentsResponseAttributes;
+        use crate::request_response::ListDocumentsResponseEntities;
+
+        let req = self
+            .collection_client
+            .main_client()
+            .prepare_request(
+                &format!(
+                    "dbs/{}/colls/{}/docs",
+                    self.collection_client.database(),
+                    self.collection_client.collection()
+                ),
+                hyper::Method::GET,
+                ResourceType::Documents,
+            )
+            .body(hyper::Body::empty())?;
+        let (headers, whole_body) = check_status_extract_headers_and_body(
+            self.collection_client.hyper_client().request(req),
+            StatusCode::OK,
+        )
+        .await?;
+
+        println!("\nheaders == {:?}", headers);
+        println!("\nwhole body == {:#?}", whole_body);
+
+        let ado = ListDocumentsResponseAdditionalHeaders::try_from(&headers)?;
+
+        // we will proceed in three steps:
+        // 1- Deserialize the result as DocumentAttributes. The extra field will be ignored.
+        // 2- Deserialize the result a type T. The extra fields will be ignored.
+        // 3- Zip 1 and 2 in the resulting structure.
+        // There is a lot of data movement here, let's hope the compiler is smarter than me :)
+        let document_attributes = ListDocumentsResponseAttributes::try_from(&whole_body as &[u8])?;
+        debug!("document_attributes == {:?}", document_attributes);
+
+        let entries = ListDocumentsResponseEntities::to_string(&whole_body as &[u8])?;
+
+        let entries2 = ListDocumentsResponseEntities::to_json(&whole_body as &[u8])?;
+
+        println!("\n\nentries2 == {:?}\n\n", entries2);
+
+        let documents = document_attributes
+            .documents
+            .into_iter()
+            .zip(entries.entities.into_iter())
+            .map(|(da, e)| Document {
+                document_attributes: da,
+                entity: e,
+            })
+            .collect();
+
+        Ok(ListDocumentsResponse {
+            rid: document_attributes.rid,
+            documents,
+            additional_headers: ado,
+        })
     }
 }
