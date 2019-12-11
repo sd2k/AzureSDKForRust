@@ -13,7 +13,7 @@ use hyper::StatusCode;
 use serde::de::DeserializeOwned;
 use std::convert::TryFrom;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct ListDocumentsBuilder<'a, 'b, CUB>
 where
     CUB: CosmosUriBuilder,
@@ -30,6 +30,31 @@ where
     query_cross_partition: bool,
     a_im: bool,
     partition_range_id: Option<&'b str>,
+}
+
+// I do not know why this is needed but deriving it
+// (as is #[derive(Clone)] does not work (maybe it's a
+// compiler bug). I've implemented it manually
+impl<CUB> Clone for ListDocumentsBuilder<'_, '_, CUB>
+where
+    CUB: CosmosUriBuilder,
+{
+    fn clone(&self) -> Self {
+        ListDocumentsBuilder {
+            collection_client: self.collection_client,
+            if_match_condition: self.if_match_condition,
+            if_modified_since: self.if_modified_since,
+            user_agent: self.user_agent,
+            activity_id: self.activity_id,
+            consistency_level: self.consistency_level,
+            continuation: self.continuation,
+            max_item_count: self.max_item_count,
+            partition_key: self.partition_key,
+            query_cross_partition: self.query_cross_partition,
+            a_im: self.a_im,
+            partition_range_id: self.partition_range_id,
+        }
+    }
 }
 
 impl<'a, 'b, CUB> ListDocumentsBuilder<'a, 'b, CUB>
@@ -458,19 +483,31 @@ where
     CUB: CosmosUriBuilder,
 {
     async fn perform_request(&self) -> Result<(hyper::HeaderMap, hyper::Chunk), AzureError> {
-        let req = self
-            .collection_client
-            .main_client()
-            .prepare_request(
-                &format!(
-                    "dbs/{}/colls/{}/docs",
-                    self.collection_client.database(),
-                    self.collection_client.collection()
-                ),
-                hyper::Method::GET,
-                ResourceType::Documents,
-            )
-            .body(hyper::Body::empty())?;
+        let mut req = self.collection_client.main_client().prepare_request(
+            &format!(
+                "dbs/{}/colls/{}/docs",
+                self.collection_client.database(),
+                self.collection_client.collection()
+            ),
+            hyper::Method::GET,
+            ResourceType::Documents,
+        );
+
+        // add trait headers
+        IfMatchConditionOption::add_header(self, &mut req);
+        IfModifiedSinceOption::add_header(self, &mut req);
+        UserAgentOption::add_header(self, &mut req);
+        ActivityIdOption::add_header(self, &mut req);
+        ConsistencyLevelOption::add_header(self, &mut req);
+        ContinuationOption::add_header(self, &mut req);
+        MaxItemCountOption::add_header(self, &mut req);
+        PartitionKeyOption::add_header(self, &mut req);
+        QueryCrossPartitionOption::add_header(self, &mut req);
+        AIMOption::add_header(self, &mut req);
+        PartitionRangeIdOption::add_header(self, &mut req);
+
+        let req = req.body(hyper::Body::empty())?;
+
         let (headers, whole_body) = check_status_extract_headers_and_body(
             self.collection_client.hyper_client().request(req),
             StatusCode::OK,
@@ -500,32 +537,47 @@ where
 
     pub fn stream_as_entity<T>(
         &self,
-    ) -> impl Stream<Item = Result<ListDocumentsResponse<T>, AzureError>> + 'a + 'b
+    ) -> impl Stream<Item = Result<ListDocumentsResponse<T>, AzureError>> + '_
     where
         T: DeserializeOwned,
     {
-        unfold(None, move |continuation_token: Option<String>| {
-            let r = self.clone();
+        #[derive(Debug, Clone, PartialEq)]
+        enum States {
+            Init,
+            Continuation(String),
+        };
 
-            async move {
-                let continuation_token = match continuation_token {
-                    Some(continuation_token) => continuation_token,
-                    None => return None,
-                };
-                let request = r.with_continuation(&continuation_token);
+        unfold(
+            Some(States::Init),
+            move |continuation_token: Option<States>| {
+                async move {
+                    println!("continuation_token == {:?}", &continuation_token);
+                    let response = match continuation_token {
+                        Some(States::Init) => self.as_entity().await,
+                        Some(States::Continuation(continuation_token)) => {
+                            self.clone()
+                                .with_continuation(&continuation_token)
+                                .as_entity()
+                                .await
+                        }
+                        None => return None,
+                    };
 
-                let response = match request.as_entity().await {
-                    Ok(response) => response,
-                    Err(err) => return Some((Err(err), None)),
-                };
+                    // the ? operator does not work in async move (yet?)
+                    // so we have to resort to this boilerplate
+                    let response = match response {
+                        Ok(response) => response,
+                        Err(err) => return Some((Err(err), None)),
+                    };
 
-                let continuation_token = match response.additional_headers.continuation_token {
-                    Some(ct) => Some(ct.to_owned()),
-                    None => None,
-                };
+                    let continuation_token = match &response.additional_headers.continuation_token {
+                        Some(ct) => Some(States::Continuation(ct.to_owned())),
+                        None => None,
+                    };
 
-                Some((Ok(response), continuation_token))
-            }
-        })
+                    Some((Ok(response), continuation_token))
+                }
+            },
+        )
     }
 }

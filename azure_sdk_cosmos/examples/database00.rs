@@ -1,4 +1,5 @@
 use azure_sdk_cosmos::prelude::*;
+use futures_util::stream::StreamExt;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 
@@ -31,28 +32,29 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     for db in dbs.databases {
         println!("database == {:?}", db);
+        let database = client.with_database(&db);
 
-        let collections = client.with_database(&db).list().finalize().await?;
+        let collections = database.list().finalize().await?;
         for collection in collections.collections {
             println!("collection == {:?}", collection);
+            let collection = database.with_collection(&collection);
 
-            let documents = client
-                .with_database(&db)
-                .with_collection(&collection)
-                .list()
-                .as_entity::<MyStruct>()
-                .await?;
-
+            let documents = collection.list().as_entity::<MyStruct>().await?;
             println!("\ndocuments deserialized == {:?}", documents);
 
-            let documents = client
-                .with_database(&db)
-                .with_collection(&collection)
-                .list()
-                .as_json()
-                .await?;
+            let documents = collection.list().as_json().await?;
+            println!("\ndocuments as json == {:?}", documents);
 
-            println!("\n\ndocuments as json == {:?}", documents);
+            // we need this binding to extend the lifespan
+            // of the request. This is a drawback of the non lexical
+            // lifetimes.
+            let o = collection.list().with_max_item_count(2);
+            let mut stream = Box::pin(o.stream_as_entity::<MyStruct>());
+
+            println!("\nstreaming");
+            while let Some(res) = stream.next().await {
+                println!("item ==> {:?}", res);
+            }
         }
     }
 

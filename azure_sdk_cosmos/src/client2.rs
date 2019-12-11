@@ -53,6 +53,7 @@ pub(crate) mod headers {
 }
 use self::headers::*;
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy)]
 pub(crate) enum ResourceType {
     Databases,
