@@ -8,6 +8,7 @@ use azure_sdk_core::modify_conditions::IfMatchCondition;
 use azure_sdk_core::prelude::*;
 use azure_sdk_core::{IfMatchConditionOption, IfMatchConditionSupport};
 use chrono::{DateTime, Utc};
+use futures::stream::{unfold, Stream};
 use hyper::StatusCode;
 use serde::de::DeserializeOwned;
 use std::convert::TryFrom;
@@ -495,5 +496,36 @@ where
         let (headers, whole_body) = self.perform_request().await?;
         let resp = ListDocumentsResponse::to_json((&headers, &whole_body as &[u8]))?;
         Ok(resp)
+    }
+
+    pub fn stream_as_entity<T>(
+        &self,
+    ) -> impl Stream<Item = Result<ListDocumentsResponse<T>, AzureError>> + 'a + 'b
+    where
+        T: DeserializeOwned,
+    {
+        unfold(None, move |continuation_token: Option<String>| {
+            let r = self.clone();
+
+            async move {
+                let continuation_token = match continuation_token {
+                    Some(continuation_token) => continuation_token,
+                    None => return None,
+                };
+                let request = r.with_continuation(&continuation_token);
+
+                let response = match request.as_entity().await {
+                    Ok(response) => response,
+                    Err(err) => return Some((Err(err), None)),
+                };
+
+                let continuation_token = match response.additional_headers.continuation_token {
+                    Some(ct) => Some(ct.to_owned()),
+                    None => None,
+                };
+
+                Some((Ok(response), continuation_token))
+            }
+        })
     }
 }

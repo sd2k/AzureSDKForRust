@@ -41,6 +41,7 @@ uuid                     = { version        = "0.8", features              = ["v
 smallvec                 = { version        = "1.0"            , features  = ["serde"] }
 bytes                    = "0.5"
 hyper-rustls             = { version        = "0.19.0-alpha.3" , features  = [] }
+futures                 = "0.3"
 
 [dev-dependencies]
 futures-executor-preview = "0.3.0-alpha.19"
