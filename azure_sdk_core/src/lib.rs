@@ -1,4 +1,4 @@
-#![recursion_limit = "128"]
+#![recursion_limit = "256"]
 #![warn(rust_2018_idioms)]
 
 #[macro_use]

@@ -568,7 +568,7 @@ where
         session_token: "<TODO>".to_owned(), //TODO
         item_count: request_item_count_from_headers(headers)?,
     };
-    println!("ado == {:?}", ado);
+    debug!("ado == {:?}", ado);
 
     // we will proceed in three steps:
     // 1- Deserialize the result as DocumentAttributes. The extra field will be ignored.
@@ -578,7 +578,7 @@ where
     let document_attributes = serde_json::from_slice::<ListDocumentsResponseAttributes>(body)?;
     let entries = serde_json::from_slice::<ListDocumentsResponseEntities<T>>(body)?;
 
-    println!("document_attributes == {:?}", document_attributes);
+    debug!("document_attributes == {:?}", document_attributes);
 
     let documents = document_attributes
         .documents

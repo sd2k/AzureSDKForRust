@@ -43,7 +43,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 .as_entity::<MyStruct>()
                 .await?;
 
-            println!("\ndocuments == {:?}", documents);
+            println!("\ndocuments deserialized == {:?}", documents);
 
             let documents = client
                 .with_database(&db)
@@ -52,7 +52,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 .as_json()
                 .await?;
 
-            println!("\n\nocuments == {:?}", documents);
+            println!("\n\ndocuments as json == {:?}", documents);
         }
     }
 

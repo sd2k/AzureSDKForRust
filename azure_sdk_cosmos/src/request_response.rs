@@ -8,6 +8,7 @@ use azure_sdk_core::{
 };
 use http::header::HeaderMap;
 use serde::de::DeserializeOwned;
+use std::convert::TryFrom;
 
 #[derive(Deserialize, Debug)]
 #[allow(dead_code)]
@@ -173,32 +174,36 @@ where
     }
 }
 
-impl ListDocumentsResponseEntities<String> {
-    pub(crate) fn to_string(body: &[u8]) -> Result<Self, AzureError> {
-        let body = std::str::from_utf8(body)?;
-        Ok(ListDocumentsResponseEntities {
-            rid: "".to_owned(),
-            entities: vec![body.to_owned()],
-        })
-    }
-}
-
 impl ListDocumentsResponseEntities<serde_json::Value> {
     pub(crate) fn to_json(body: &[u8]) -> Result<Self, AzureError> {
+        debug!(
+            "\nListDocumentsResponseEntities<serde_json::Value>::to_json({}) called",
+            std::str::from_utf8(body)?
+        );
+
         use serde_json::{from_slice, Value};
         let val: Value = from_slice(body)?;
-        let val2 = &val["Documents"];
 
-        if let Value::Array(val) = val2 {
+        let rid = match &val["_rid"] {
+            Value::String(rid) => rid,
+            _ => {
+                return Err(AzureError::MissingValueError(
+                    "_rid".to_owned(),
+                    "String".to_owned(),
+                ))
+            }
+        };
+
+        if let Value::Array(documents) = &val["Documents"] {
             Ok(ListDocumentsResponseEntities {
                 rid: "".to_owned(),
-                entities: val.to_vec(),
+                entities: documents.to_vec(),
             })
         } else {
-            Ok(ListDocumentsResponseEntities {
-                rid: "".to_owned(),
-                entities: vec![from_slice(body)?],
-            })
+            return Err(AzureError::MissingValueError(
+                "_rid".to_owned(),
+                "Array".to_owned(),
+            ));
         }
     }
 }
@@ -221,9 +226,44 @@ where
         // 3- Zip 1 and 2 in the resulting structure.
         // There is a lot of data movement here, let's hope the compiler is smarter than me :)
         let document_attributes = ListDocumentsResponseAttributes::try_from(body)?;
+        debug!("document_attributes == {:?}", document_attributes);
         let entries = ListDocumentsResponseEntities::try_from(body)?;
 
+        let documents = document_attributes
+            .documents
+            .into_iter()
+            .zip(entries.entities.into_iter())
+            .map(|(da, e)| Document {
+                document_attributes: da,
+                entity: e,
+            })
+            .collect();
+
+        Ok(ListDocumentsResponse {
+            rid: document_attributes.rid,
+            documents,
+            additional_headers: ado,
+        })
+    }
+}
+
+impl ListDocumentsResponse<serde_json::Value> {
+    pub(crate) fn to_json(value: (&HeaderMap, &[u8])) -> Result<Self, AzureError> {
+        let headers = value.0;
+        let body = value.1;
+        debug!("headers == {:?}", headers);
+
+        let ado = ListDocumentsResponseAdditionalHeaders::try_from(headers)?;
+
+        // we will proceed in three steps:
+        // 1- Deserialize the result as DocumentAttributes. The extra field will be ignored.
+        // 2- Deserialize the result a type T. The extra fields will be ignored.
+        // 3- Zip 1 and 2 in the resulting structure.
+        // There is a lot of data movement here, let's hope the compiler is smarter than me :)
+        let document_attributes = ListDocumentsResponseAttributes::try_from(body)?;
         debug!("document_attributes == {:?}", document_attributes);
+        let entries = ListDocumentsResponseEntities::to_json(body)?;
+        debug!("\n\nentries == {:?}\n\n", entries);
 
         let documents = document_attributes
             .documents

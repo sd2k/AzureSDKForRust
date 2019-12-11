@@ -243,6 +243,9 @@ quick_error! {
         MissingHeaderError(header: String) {
             display("A required header is missing: {}", header)
         }
+        MissingValueError(value: String, expected_type: String) {
+            display("An expected JSON node is missing: {} of expected type {}", value, expected_type)
+        }
     }
 }
 
