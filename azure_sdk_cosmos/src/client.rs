@@ -43,8 +43,8 @@ pub(crate) mod headers {
                                                                //pub const HEADER_CONSISTENCY_LEVEL: &str = "x-ms-consistency-level"; // [ConsistencyLevel]
     pub const HEADER_SESSION_TOKEN: &str = "x-ms-session-token"; // [ContinuationToken]
     pub const HEADER_ALLOW_MULTIPLE_WRITES: &str = "x-ms-cosmos-allow-tentative-writes"; // [bool]
-    pub const HEADER_A_IM: &str = "A-IM"; // Cow[str]
-    pub const HEADER_DOCUMENTDB_PARTITIONRANGEID: &str = "x-ms-documentdb-partitionkeyrangeid"; // [String]
+                                                                                         //pub const HEADER_A_IM: &str = "A-IM"; // Cow[str]
+                                                                                         //pub const HEADER_DOCUMENTDB_PARTITIONRANGEID: &str = "x-ms-documentdb-partitionkeyrangeid"; // [String]
     pub const HEADER_REQUEST_CHARGE: &str = "x-ms-request-charge"; // [f64]
     pub const HEADER_DOCUMENTDB_PARTITIONKEY: &str = "x-ms-documentdb-partitionkey"; // [String]
     pub const HEADER_DOCUMENTDB_ISQUERY: &str = "x-ms-documentdb-isquery"; // [bool]
@@ -76,15 +76,6 @@ where
     auth_token: AuthorizationToken,
     cosmos_uri_builder: CUB,
 }
-
-//impl<CUB> Cosmos<CUB> for Client<CUB>
-//where
-//    CUB: CosmosUriBuilder,
-//{
-//    fn get_document<'a>(&'a self) -> GetDocumentBuilder<'a, CUB, No, No, No> {
-//        GetDocumentBuilder::new(self.clone())
-//    }
-//}
 
 pub trait CosmosUriBuilder {
     fn build_base_uri(&self) -> &str;
@@ -639,30 +630,6 @@ where
         );
 
         ReplaceDocumentRequest::new(self.hyper_client.clone(), req, document_serialized)
-    }
-
-    pub fn get_document<S1, S2, S3>(
-        &self,
-        database: S1,
-        collection: S2,
-        document_id: S3,
-    ) -> GetDocumentRequest
-    where
-        S1: AsRef<str>,
-        S2: AsRef<str>,
-        S3: AsRef<str>,
-    {
-        let db = database.as_ref();
-        let coll = collection.as_ref();
-        let doc_id = document_id.as_ref();
-
-        let req = self.prepare_request(
-            &format!("dbs/{}/colls/{}/docs/{}", db, coll, doc_id),
-            hyper::Method::GET,
-            ResourceType::Documents,
-        );
-
-        GetDocumentRequest::new(self.hyper_client.clone(), req)
     }
 
     pub fn query_documents<'b, S1: AsRef<str>, S2: AsRef<str>, Q: AsRef<Query<'b>>>(
