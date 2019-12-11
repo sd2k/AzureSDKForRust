@@ -45,7 +45,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let authorization_token = AuthorizationToken::new(account, TokenType::Master, &master_key)?;
 
-    let client = ClientBuilder::new(authorization_token)?;
+    let client = ClientBuilder::new(authorization_token.clone())?;
 
     for i in 0u64..5 {
         let doc = MySampleStructOwned {
@@ -65,11 +65,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!("Created 5 documents.");
 
-    // let's get 3 entries at a time
-    let response = client
-        .list_documents(&database_name, &collection_name)
-        .max_item_count(3u64)
-        .execute::<MySampleStructOwned>()
+    // Let's get 3 entries at a time
+    // we must use the new client since we are
+    // deprecating the old one.
+    // This comment will be wiped as soon as
+    // the migration is over.
+    let client2 = Client2Builder::new(authorization_token)?;
+    let response = client2
+        .with_database(&database_name)
+        .with_collection(&collection_name)
+        .list()
+        .with_max_item_count(3)
+        .get_as_entity::<MySampleStructOwned>()
         .await?;
 
     assert_eq!(response.documents.len(), 3);
@@ -85,10 +92,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let ct = response.additional_headers.continuation_token.unwrap();
     println!("ct == {}", ct);
 
-    let response = client
-        .list_documents(&database_name, &collection_name)
-        .continuation_token(ct)
-        .execute::<MySampleStructOwned>()
+    let response = client2
+        .with_database(&database_name)
+        .with_collection(&collection_name)
+        .list()
+        .with_continuation(&ct)
+        .get_as_entity::<MySampleStructOwned>()
         .await?;
 
     assert_eq!(response.documents.len(), 2);

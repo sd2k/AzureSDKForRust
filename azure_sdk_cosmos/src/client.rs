@@ -639,29 +639,6 @@ where
         ReplaceDocumentRequest::new(self.hyper_client.clone(), req, document_serialized)
     }
 
-    pub fn list_documents<S1: AsRef<str>, S2: AsRef<str>>(
-        &self,
-        database: S1,
-        collection: S2,
-    ) -> ListDocumentsRequest {
-        let database = database.as_ref();
-        let collection = collection.as_ref();
-
-        trace!(
-            "list_documents called(database == {}, collection == {}",
-            database,
-            collection
-        );
-
-        let req = self.prepare_request(
-            &format!("dbs/{}/colls/{}/docs", database, collection),
-            hyper::Method::GET,
-            ResourceType::Documents,
-        );
-
-        ListDocumentsRequest::new(self.hyper_client.clone(), req)
-    }
-
     pub fn get_document<S1, S2, S3>(
         &self,
         database: S1,

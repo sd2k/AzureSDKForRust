@@ -30,3 +30,9 @@ impl DatabaseName for dyn AsRef<str> {
         self.as_ref()
     }
 }
+
+impl DatabaseName for String {
+    fn name(&self) -> &str {
+        self.as_ref()
+    }
+}

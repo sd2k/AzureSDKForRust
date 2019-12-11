@@ -126,3 +126,9 @@ impl CollectionName for dyn AsRef<str> {
         self.as_ref()
     }
 }
+
+impl CollectionName for String {
+    fn name(&self) -> &str {
+        self.as_ref()
+    }
+}

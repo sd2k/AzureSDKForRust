@@ -39,10 +39,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
             println!("collection == {:?}", collection);
             let collection = database.with_collection(&collection);
 
-            let documents = collection.list().as_entity::<MyStruct>().await?;
+            let documents = collection.list().get_as_entity::<MyStruct>().await?;
             println!("\ndocuments deserialized == {:?}", documents);
 
-            let documents = collection.list().as_json().await?;
+            let documents = collection.list().get_as_json().await?;
             println!("\ndocuments as json == {:?}", documents);
 
             // we need this binding to extend the lifespan

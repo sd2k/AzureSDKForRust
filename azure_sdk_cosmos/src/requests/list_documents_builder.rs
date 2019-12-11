@@ -520,7 +520,7 @@ where
         Ok((headers, whole_body))
     }
 
-    pub async fn as_entity<T>(&self) -> Result<ListDocumentsResponse<T>, AzureError>
+    pub async fn get_as_entity<T>(&self) -> Result<ListDocumentsResponse<T>, AzureError>
     where
         T: DeserializeOwned,
     {
@@ -529,7 +529,9 @@ where
         Ok(resp)
     }
 
-    pub async fn as_json(&self) -> Result<ListDocumentsResponse<serde_json::Value>, AzureError> {
+    pub async fn get_as_json(
+        &self,
+    ) -> Result<ListDocumentsResponse<serde_json::Value>, AzureError> {
         let (headers, whole_body) = self.perform_request().await?;
         let resp = ListDocumentsResponse::new_json((&headers, &whole_body as &[u8]))?;
         Ok(resp)
@@ -550,11 +552,11 @@ where
                 async move {
                     println!("continuation_token == {:?}", &continuation_token);
                     let response = match continuation_token {
-                        Some(States::Init) => self.as_entity().await,
+                        Some(States::Init) => self.get_as_json().await,
                         Some(States::Continuation(continuation_token)) => {
                             self.clone()
                                 .with_continuation(&continuation_token)
-                                .as_json()
+                                .get_as_json()
                                 .await
                         }
                         None => return None,
@@ -596,11 +598,11 @@ where
                 async move {
                     println!("continuation_token == {:?}", &continuation_token);
                     let response = match continuation_token {
-                        Some(States::Init) => self.as_entity().await,
+                        Some(States::Init) => self.get_as_entity().await,
                         Some(States::Continuation(continuation_token)) => {
                             self.clone()
                                 .with_continuation(&continuation_token)
-                                .as_entity()
+                                .get_as_entity()
                                 .await
                         }
                         None => return None,
