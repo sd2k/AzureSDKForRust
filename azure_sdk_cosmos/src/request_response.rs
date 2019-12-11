@@ -1,10 +1,11 @@
 use crate::{
-    client::headers::HEADER_REQUEST_CHARGE, collection::Collection, database::Database,
-    document::DocumentAttributes, request_charge_from_headers, request_item_count_from_headers,
+    collection::Collection, database::Database, document::DocumentAttributes,
+    number_of_read_regions_from_headers, request_charge_from_headers,
+    request_item_count_from_headers,
 };
 use azure_sdk_core::{
     continuation_token_from_headers_optional, errors::AzureError, etag_from_headers_optional,
-    session_token_from_headers, util::HeaderMapExt, SessionToken,
+    session_token_from_headers, SessionToken,
 };
 use http::header::HeaderMap;
 use serde::de::DeserializeOwned;
@@ -52,11 +53,18 @@ pub struct Document<T> {
     pub entity: T,
 }
 
-impl<T: DeserializeOwned> Document<T> {
-    pub(crate) fn from_json(json: &[u8]) -> Result<Document<T>, AzureError> {
+impl<T> std::convert::TryFrom<(&HeaderMap, &[u8])> for Document<T>
+where
+    T: DeserializeOwned,
+{
+    type Error = AzureError;
+    fn try_from(value: (&HeaderMap, &[u8])) -> Result<Self, Self::Error> {
+        let _headers = value.0;
+        let body = value.1;
+
         Ok(Document {
-            document_attributes: ::serde_json::from_slice::<DocumentAttributes>(json)?,
-            entity: ::serde_json::from_slice::<T>(json)?,
+            document_attributes: ::serde_json::from_slice::<DocumentAttributes>(body)?,
+            entity: ::serde_json::from_slice::<T>(body)?,
         })
     }
 }
@@ -74,6 +82,7 @@ pub struct ListDocumentsResponseAdditionalHeaders {
     pub etag: Option<String>,
     pub session_token: SessionToken,
     pub item_count: u64,
+    pub number_of_read_regions: u32,
 }
 
 #[derive(Debug, Clone)]
@@ -99,6 +108,8 @@ pub struct ListDocumentsResponse<T> {
 #[derive(Debug, Clone)]
 pub struct DocumentAdditionalHeaders {
     pub charge: f64,
+    pub session_token: String,
+    pub number_of_read_regions: u32,
 }
 
 impl std::convert::TryFrom<&HeaderMap> for DocumentAdditionalHeaders {
@@ -107,6 +118,8 @@ impl std::convert::TryFrom<&HeaderMap> for DocumentAdditionalHeaders {
         debug!("headers == {:?}", headers);
         let dah = DocumentAdditionalHeaders {
             charge: request_charge_from_headers(headers)?,
+            session_token: session_token_from_headers(headers)?,
+            number_of_read_regions: number_of_read_regions_from_headers(headers)?,
         };
 
         debug!("dah == {:?}", dah);
@@ -118,6 +131,48 @@ impl std::convert::TryFrom<&HeaderMap> for DocumentAdditionalHeaders {
 pub struct GetDocumentResponse<T> {
     pub document: Option<Document<T>>,
     pub additional_headers: DocumentAdditionalHeaders,
+}
+
+impl<T> std::convert::TryFrom<(&HeaderMap, &[u8])> for GetDocumentResponse<T>
+where
+    T: DeserializeOwned,
+{
+    type Error = AzureError;
+    fn try_from(value: (&HeaderMap, &[u8])) -> Result<Self, Self::Error> {
+        let headers = value.0;
+        let body = value.1;
+        debug!("headers == {:?}", headers);
+        debug!("body == {:?}", std::str::from_utf8(body)?);
+
+        let additional_headers = DocumentAdditionalHeaders::try_from(headers)?;
+        let document = Document::try_from((headers, body))?;
+
+        Ok(Self {
+            additional_headers,
+            document: Some(document),
+        })
+    }
+}
+
+impl GetDocumentResponse<serde_json::Value> {
+    pub(crate) fn new_json(value: (&HeaderMap, &[u8])) -> Result<Self, AzureError> {
+        let headers = value.0;
+        let body = value.1;
+        debug!("headers == {:?}", headers);
+        debug!("body == {:?}", std::str::from_utf8(body)?);
+
+        let additional_headers = DocumentAdditionalHeaders::try_from(headers)?;
+        let document_attributes: DocumentAttributes = serde_json::from_slice(body)?;
+        let entity: serde_json::Value = serde_json::from_slice(body)?;
+
+        Ok(Self {
+            additional_headers,
+            document: Some(Document {
+                document_attributes,
+                entity,
+            }),
+        })
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -151,6 +206,7 @@ impl std::convert::TryFrom<&HeaderMap> for ListDocumentsResponseAdditionalHeader
             etag: etag_from_headers_optional(headers)?,
             session_token: session_token_from_headers(headers)?,
             item_count: request_item_count_from_headers(headers)?,
+            number_of_read_regions: number_of_read_regions_from_headers(headers)?,
         };
         debug!("ado == {:?}", ado);
 

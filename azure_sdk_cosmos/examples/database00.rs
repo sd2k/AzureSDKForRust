@@ -39,11 +39,30 @@ async fn main() -> Result<(), Box<dyn Error>> {
             println!("collection == {:?}", collection);
             let collection = database.with_collection(&collection);
 
-            let documents = collection.list().get_as_entity::<MyStruct>().await?;
-            println!("\ndocuments deserialized == {:?}", documents);
-
             let documents = collection.list().get_as_json().await?;
             println!("\ndocuments as json == {:?}", documents);
+
+            // get by id
+            let doc = collection
+                .get()
+                .with_document_id("3321000d-8d9f-f6e9-24e5-d1a3e217eb1a")
+                .with_partition_key(&vec!["cyan"])
+                .with_query_cross_partition(true)
+                .get_as_entity::<MyStruct>()
+                .await?;
+            println!("\ndocument retrieved == {:?}", doc);
+
+            let doc = collection
+                .get()
+                .with_document_id("3321000d-8d9f-f6e9-24e5-d1a3e217eb1a")
+                .with_partition_key(&vec!["cyan"])
+                .with_query_cross_partition(true)
+                .get_as_json()
+                .await?;
+            println!("\ndocument retrieved == {:?}", doc);
+
+            let documents = collection.list().get_as_entity::<MyStruct>().await?;
+            println!("\ndocuments deserialized == {:?}", documents);
 
             // we need this binding to extend the lifespan
             // of the request. This is a drawback of the non lexical

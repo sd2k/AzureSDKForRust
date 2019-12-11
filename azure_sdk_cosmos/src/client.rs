@@ -54,6 +54,8 @@ pub(crate) mod headers {
         "x-ms-documentdb-query-parallelizecrosspartitionquery";
     // [bool]
     pub const HEADER_ITEM_COUNT: &str = "x-ms-item-count"; // u64
+    pub const HEADER_NUMBER_OF_READ_REGIONS: &str = "x-ms-number-of-read-regions";
+    // u32
 }
 use self::headers::*;
 

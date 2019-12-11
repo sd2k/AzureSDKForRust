@@ -1,6 +1,6 @@
 use crate::client2::{CosmosUriBuilder, ResourceType};
 use crate::prelude::*;
-use crate::request_response::ListDocumentsResponse;
+use crate::request_response::GetDocumentResponse;
 use crate::CollectionClient;
 use crate::CollectionClientRequired;
 use azure_sdk_core::errors::{check_status_extract_headers_and_body, AzureError};
@@ -499,26 +499,24 @@ where
         )
         .await?;
 
-        debug!("\nheaders == {:?}", headers);
-        debug!("\nwhole body == {:#?}", whole_body);
+        println!("\nheaders == {:?}", headers);
+        println!("\nwhole body == {:#?}", whole_body);
 
         Ok((headers, whole_body))
     }
 
-    pub async fn get_as_entity<T>(&self) -> Result<ListDocumentsResponse<T>, AzureError>
+    pub async fn get_as_entity<T>(&self) -> Result<GetDocumentResponse<T>, AzureError>
     where
         T: DeserializeOwned,
     {
         let (headers, whole_body) = self.perform_request().await?;
-        let resp = ListDocumentsResponse::try_from((&headers, &whole_body as &[u8]))?;
+        let resp = GetDocumentResponse::try_from((&headers, &whole_body as &[u8]))?;
         Ok(resp)
     }
 
-    pub async fn get_as_json(
-        &self,
-    ) -> Result<ListDocumentsResponse<serde_json::Value>, AzureError> {
+    pub async fn get_as_json(&self) -> Result<GetDocumentResponse<serde_json::Value>, AzureError> {
         let (headers, whole_body) = self.perform_request().await?;
-        let resp = ListDocumentsResponse::new_json((&headers, &whole_body as &[u8]))?;
+        let resp = GetDocumentResponse::new_json((&headers, &whole_body as &[u8]))?;
         Ok(resp)
     }
 }

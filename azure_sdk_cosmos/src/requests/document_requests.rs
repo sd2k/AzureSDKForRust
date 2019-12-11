@@ -17,6 +17,14 @@ pub fn request_item_count_from_headers(headers: &HeaderMap) -> Result<u64, Azure
         .parse()?)
 }
 
+pub fn number_of_read_regions_from_headers(headers: &HeaderMap) -> Result<u32, AzureError> {
+    Ok(headers
+        .get(HEADER_NUMBER_OF_READ_REGIONS)
+        .ok_or_else(|| AzureError::HeaderNotFound(HEADER_NUMBER_OF_READ_REGIONS.to_owned()))?
+        .to_str()?
+        .parse()?)
+}
+
 pub struct CreateDocumentRequest {
     hyper_client: HyperClient,
     request: RequestBuilder,
@@ -112,7 +120,7 @@ impl GetDocumentRequest {
         match status {
             StatusCode::OK => {
                 let additional_headers = DocumentAdditionalHeaders::try_from(headers)?;
-                let document = Document::from_json(body)?;
+                let document = Document::try_from((headers, body))?;
                 Ok(GetDocumentResponse {
                     document: Some(document),
                     additional_headers,
@@ -376,6 +384,7 @@ impl ListDocumentsRequest {
                 .map(|s| s.to_owned()),
             session_token: "<TODO>".to_owned(), //TODO
             item_count: request_item_count_from_headers(headers)?,
+            number_of_read_regions: number_of_read_regions_from_headers(headers)?,
         };
         debug!("ado == {:?}", ado);
 
@@ -461,7 +470,7 @@ impl<T: DeserializeOwned> ReplaceDocumentRequest<T> {
         body: &[u8],
     ) -> Result<ReplaceDocumentResponse<R>, AzureError> {
         let additional_headers = DocumentAdditionalHeaders::try_from(headers)?;
-        let document = Document::from_json(body)?;
+        let document = Document::try_from((headers, body))?;
         Ok(ReplaceDocumentResponse {
             document,
             additional_headers,
