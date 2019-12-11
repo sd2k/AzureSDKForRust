@@ -3,7 +3,7 @@ use crate::{
     document::{DocumentAttributes, IndexingDirective},
     partition_key::PartitionKey,
     request_response::*,
-    ConsistencyLevel,
+    //ConsistencyLevel,
 };
 #[allow(unused_imports)]
 use azure_sdk_core::{

@@ -10,7 +10,7 @@ use super::{
 //use crate::create_collection_builder::CreateCollectionBuilder;
 use crate::database::DatabaseName;
 use crate::database_client::DatabaseClient;
-use azure_sdk_core::errors::AzureError;
+use azure_sdk_core::{errors::AzureError, util::RequestBuilderExt};
 use base64;
 use chrono;
 use http::request::Builder as RequestBuilder;
@@ -27,29 +27,28 @@ const VERSION: &str = "1.0";
 const TIME_FORMAT: &str = "%a, %d %h %Y %T GMT";
 
 pub(crate) mod headers {
-    pub const HEADER_VERSION: &str = "x-ms-version"; // Cow[str]
-    pub const HEADER_DATE: &str = "x-ms-date"; // [String]
-                                               //pub const HEADER_OFFER_THROUGHPUT: &str = "x-ms-offer-throughput"; // [u64]
-                                               //pub const HEADER_OFFER_TYPE: &str = "x-ms-offer-type"; // [&str]
-                                               //pub const HEADER_DOCUMENTDB_IS_UPSERT: &str = "x-ms-documentdb-is-upsert"; // [bool]
-                                               //pub const HEADER_INDEXING_DIRECTIVE: &str = "x-ms-indexing-directive"; // [IndexingDirective]
+    //pub const HEADER_VERSION: &str = "x-ms-version"; // Cow[str]
+    //pub const HEADER_DATE: &str = "x-ms-date"; // [String]
+    //pub const HEADER_OFFER_THROUGHPUT: &str = "x-ms-offer-throughput"; // [u64]
+    //pub const HEADER_OFFER_TYPE: &str = "x-ms-offer-type"; // [&str]
+    //pub const HEADER_DOCUMENTDB_IS_UPSERT: &str = "x-ms-documentdb-is-upsert"; // [bool]
+    //pub const HEADER_INDEXING_DIRECTIVE: &str = "x-ms-indexing-directive"; // [IndexingDirective]
     pub const HEADER_MAX_ITEM_COUNT: &str = "x-ms-max-item-count"; // [u64]
-    pub const HEADER_CONTINUATION: &str = "x-ms-continuation"; // [ContinuationToken]
-    pub const HEADER_CONSISTENCY_LEVEL: &str = "x-ms-consistency-level"; // [ConsistencyLevel]
-    pub const HEADER_SESSION_TOKEN: &str = "x-ms-session-token"; // [ContinuationToken]
-    pub const HEADER_ALLOW_MULTIPLE_WRITES: &str = "x-ms-cosmos-allow-tentative-writes"; // [bool]
-    pub const HEADER_A_IM: &str = "A-IM"; // Cow[str]
-    pub const HEADER_DOCUMENTDB_PARTITIONRANGEID: &str = "x-ms-documentdb-partitionkeyrangeid"; // [String]
-                                                                                                //pub const HEADER_REQUEST_CHARGE: &str = "x-ms-request-charge"; // [f64]
-    pub const HEADER_DOCUMENTDB_PARTITIONKEY: &str = "x-ms-documentdb-partitionkey";
-    // [String]
+    //pub const HEADER_CONTINUATION: &str = "x-ms-continuation"; // [ContinuationToken]
+    //pub const HEADER_CONSISTENCY_LEVEL: &str = "x-ms-consistency-level"; // [ConsistencyLevel]
+    //pub const HEADER_SESSION_TOKEN: &str = "x-ms-session-token"; // [ContinuationToken]
+    //pub const HEADER_ALLOW_MULTIPLE_WRITES: &str = "x-ms-cosmos-allow-tentative-writes"; // [bool]
+    //pub const HEADER_A_IM: &str = "A-IM"; // Cow[str]
+    //pub const HEADER_DOCUMENTDB_PARTITIONRANGEID: &str = "x-ms-documentdb-partitionkeyrangeid"; // [String]
+    //pub const HEADER_REQUEST_CHARGE: &str = "x-ms-request-charge"; // [f64]
+    pub const HEADER_DOCUMENTDB_PARTITIONKEY: &str = "x-ms-documentdb-partitionkey"; // [String]
     //pub const HEADER_DOCUMENTDB_ISQUERY: &str = "x-ms-documentdb-isquery"; // [bool]
-    pub const HEADER_DOCUMENTDB_QUERY_ENABLECROSSPARTITION: &str =
-        "x-ms-documentdb-query-enablecrosspartition"; // [bool]
-                                                      //pub const HEADER_DOCUMENTDB_QUERY_PARALLELIZECROSSPARTITIONQUERY: &str =
-                                                      //    "x-ms-documentdb-query-parallelizecrosspartitionquery";
-                                                      //// [bool]
-                                                      //pub const HEADER_ITEM_COUNT: &'static str = "x-ms-item-count"; // u64
+    //pub const HEADER_DOCUMENTDB_QUERY_ENABLECROSSPARTITION: &str =
+    //    "x-ms-documentdb-query-enablecrosspartition"; // [bool]
+    //pub const HEADER_DOCUMENTDB_QUERY_PARALLELIZECROSSPARTITIONQUERY: &str =
+    //    "x-ms-documentdb-query-parallelizecrosspartitionquery";
+    //// [bool]
+    //pub const HEADER_ITEM_COUNT: &'static str = "x-ms-item-count"; // u64
 }
 use self::headers::*;
 

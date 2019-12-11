@@ -196,7 +196,7 @@ impl ListDocumentsResponseEntities<serde_json::Value> {
 
         if let Value::Array(documents) = &val["Documents"] {
             Ok(ListDocumentsResponseEntities {
-                rid: "".to_owned(),
+                rid: rid.to_owned(),
                 entities: documents.to_vec(),
             })
         } else {

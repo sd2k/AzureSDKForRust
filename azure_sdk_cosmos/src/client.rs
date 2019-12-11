@@ -40,7 +40,7 @@ pub(crate) mod headers {
     pub const HEADER_INDEXING_DIRECTIVE: &str = "x-ms-indexing-directive"; // [IndexingDirective]
     pub const HEADER_MAX_ITEM_COUNT: &str = "x-ms-max-item-count"; // [u64]
     pub const HEADER_CONTINUATION: &str = "x-ms-continuation"; // [ContinuationToken]
-    pub const HEADER_CONSISTENCY_LEVEL: &str = "x-ms-consistency-level"; // [ConsistencyLevel]
+                                                               //pub const HEADER_CONSISTENCY_LEVEL: &str = "x-ms-consistency-level"; // [ConsistencyLevel]
     pub const HEADER_SESSION_TOKEN: &str = "x-ms-session-token"; // [ContinuationToken]
     pub const HEADER_ALLOW_MULTIPLE_WRITES: &str = "x-ms-cosmos-allow-tentative-writes"; // [bool]
     pub const HEADER_A_IM: &str = "A-IM"; // Cow[str]

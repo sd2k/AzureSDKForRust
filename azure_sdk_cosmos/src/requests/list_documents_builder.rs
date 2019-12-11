@@ -10,7 +10,6 @@ use azure_sdk_core::{IfMatchConditionOption, IfMatchConditionSupport};
 use chrono::{DateTime, Utc};
 use hyper::StatusCode;
 use serde::de::DeserializeOwned;
-use serde_json::Value;
 use std::convert::TryFrom;
 
 #[derive(Debug, Clone)]

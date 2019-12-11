@@ -1,5 +1,3 @@
-use std::fmt;
-
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ConsistencyLevel<'a> {
     Strong,

@@ -36,7 +36,6 @@ use self::database_client::DatabaseClient;
 use crate::client2::headers::*;
 use crate::collection::CollectionName;
 use crate::database::DatabaseName;
-use azure_sdk_core::errors::TraversingError;
 use http::request::Builder;
 
 pub trait ClientRequired<'a, CUB>

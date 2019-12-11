@@ -540,63 +540,6 @@ fn derive_request_charge(headers: &HeaderMap) -> f64 {
         .unwrap()
 }
 
-pub(crate) fn documents_from_headers_and_body<T>(
-    headers: &HeaderMap,
-    body: &[u8],
-) -> Result<ListDocumentsResponse<T>, AzureError>
-where
-    T: DeserializeOwned,
-{
-    debug!("headers == {:?}", headers);
-
-    let ado = ListDocumentsResponseAdditionalHeaders {
-        // This match just tries to extract the info and convert it
-        // into the correct type. It is complicated because headers
-        // can be missing and also because headers.get<T> will return
-        // a T reference (&T) so we need to cast it into the
-        // correct type and clone it (in this case into a &str that will
-        // become a String using to_owned())
-        continuation_token: derive_continuation_token(headers),
-        // Here we assume the Charge header to always be present.
-        // If problems arise we
-        // will change the field to be Option(al).
-        charge: derive_request_charge(headers),
-        etag: headers
-            .get(header::ETAG)
-            .and_then(|v| v.to_str().ok())
-            .map(|s| s.to_owned()),
-        session_token: "<TODO>".to_owned(), //TODO
-        item_count: request_item_count_from_headers(headers)?,
-    };
-    debug!("ado == {:?}", ado);
-
-    // we will proceed in three steps:
-    // 1- Deserialize the result as DocumentAttributes. The extra field will be ignored.
-    // 2- Deserialize the result a type T. The extra fields will be ignored.
-    // 3- Zip 1 and 2 in the resulting structure.
-    // There is a lot of data movement here, let's hope the compiler is smarter than me :)
-    let document_attributes = serde_json::from_slice::<ListDocumentsResponseAttributes>(body)?;
-    let entries = serde_json::from_slice::<ListDocumentsResponseEntities<T>>(body)?;
-
-    debug!("document_attributes == {:?}", document_attributes);
-
-    let documents = document_attributes
-        .documents
-        .into_iter()
-        .zip(entries.entities.into_iter())
-        .map(|(da, e)| Document {
-            document_attributes: da,
-            entity: e,
-        })
-        .collect();
-
-    Ok(ListDocumentsResponse {
-        rid: document_attributes.rid,
-        documents,
-        additional_headers: ado,
-    })
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
