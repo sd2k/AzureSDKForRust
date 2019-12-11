@@ -46,7 +46,7 @@ where
     #[inline]
     pub(crate) fn new(client: &'a Client<CUB>) -> CreateCollectionBuilder<'a, CUB, No, No, No, No> {
         CreateCollectionBuilder {
-            client: client,
+            client,
             database_name: None,
             offer: None,
             id: None,

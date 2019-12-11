@@ -81,7 +81,7 @@ pub trait AIMOption {
     fn a_im(&self) -> bool;
 
     fn add_header(&self, builder: &mut Builder) {
-        if self.a_im() == true {
+        if self.a_im() {
             builder.header(HEADER_A_IM, "Incremental feed");
         }
     }

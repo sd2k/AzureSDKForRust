@@ -531,7 +531,7 @@ where
 
     pub async fn as_json(&self) -> Result<ListDocumentsResponse<serde_json::Value>, AzureError> {
         let (headers, whole_body) = self.perform_request().await?;
-        let resp = ListDocumentsResponse::to_json((&headers, &whole_body as &[u8]))?;
+        let resp = ListDocumentsResponse::new_json((&headers, &whole_body as &[u8]))?;
         Ok(resp)
     }
 

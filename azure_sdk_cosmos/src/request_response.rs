@@ -175,7 +175,7 @@ where
 }
 
 impl ListDocumentsResponseEntities<serde_json::Value> {
-    pub(crate) fn to_json(body: &[u8]) -> Result<Self, AzureError> {
+    pub(crate) fn new_json(body: &[u8]) -> Result<Self, AzureError> {
         debug!(
             "\nListDocumentsResponseEntities<serde_json::Value>::to_json({}) called",
             std::str::from_utf8(body)?
@@ -200,10 +200,10 @@ impl ListDocumentsResponseEntities<serde_json::Value> {
                 entities: documents.to_vec(),
             })
         } else {
-            return Err(AzureError::MissingValueError(
+            Err(AzureError::MissingValueError(
                 "_rid".to_owned(),
                 "Array".to_owned(),
-            ));
+            ))
         }
     }
 }
@@ -248,7 +248,7 @@ where
 }
 
 impl ListDocumentsResponse<serde_json::Value> {
-    pub(crate) fn to_json(value: (&HeaderMap, &[u8])) -> Result<Self, AzureError> {
+    pub(crate) fn new_json(value: (&HeaderMap, &[u8])) -> Result<Self, AzureError> {
         let headers = value.0;
         let body = value.1;
         debug!("headers == {:?}", headers);
@@ -262,7 +262,7 @@ impl ListDocumentsResponse<serde_json::Value> {
         // There is a lot of data movement here, let's hope the compiler is smarter than me :)
         let document_attributes = ListDocumentsResponseAttributes::try_from(body)?;
         debug!("document_attributes == {:?}", document_attributes);
-        let entries = ListDocumentsResponseEntities::to_json(body)?;
+        let entries = ListDocumentsResponseEntities::new_json(body)?;
         debug!("\n\nentries == {:?}\n\n", entries);
 
         let documents = document_attributes

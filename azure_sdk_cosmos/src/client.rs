@@ -53,7 +53,7 @@ pub(crate) mod headers {
     pub const HEADER_DOCUMENTDB_QUERY_PARALLELIZECROSSPARTITIONQUERY: &str =
         "x-ms-documentdb-query-parallelizecrosspartitionquery";
     // [bool]
-    pub const HEADER_ITEM_COUNT: &'static str = "x-ms-item-count"; // u64
+    pub const HEADER_ITEM_COUNT: &str = "x-ms-item-count"; // u64
 }
 use self::headers::*;
 
