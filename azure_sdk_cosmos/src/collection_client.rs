@@ -1,7 +1,8 @@
 use crate::client2::{Client2, CosmosUriBuilder};
 use crate::database_client::DatabaseClient;
-use crate::requests::ListDocumentsBuilder;
+use crate::requests;
 use crate::{CollectionTrait, DatabaseTrait};
+use azure_sdk_core::No;
 
 #[derive(Debug, Clone)]
 pub struct CollectionClient<'a, CUB>
@@ -46,7 +47,11 @@ where
         self.collection
     }
 
-    fn list(&self) -> ListDocumentsBuilder<'_, '_, CUB> {
-        ListDocumentsBuilder::new(self)
+    fn list(&self) -> requests::ListDocumentsBuilder<'_, '_, CUB> {
+        requests::ListDocumentsBuilder::new(self)
+    }
+
+    fn get(&self) -> requests::GetDocumentBuilder<'_, '_, CUB, No> {
+        requests::GetDocumentBuilder::new(self)
     }
 }

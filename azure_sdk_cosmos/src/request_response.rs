@@ -101,15 +101,16 @@ pub struct DocumentAdditionalHeaders {
     pub charge: f64,
 }
 
-impl DocumentAdditionalHeaders {
-    pub(crate) fn derive_from(headers: &::hyper::HeaderMap) -> DocumentAdditionalHeaders {
-        DocumentAdditionalHeaders {
-            charge: headers
-                .get_as_str(HEADER_REQUEST_CHARGE)
-                .unwrap()
-                .parse::<f64>()
-                .unwrap(),
-        }
+impl std::convert::TryFrom<&HeaderMap> for DocumentAdditionalHeaders {
+    type Error = AzureError;
+    fn try_from(headers: &HeaderMap) -> Result<Self, Self::Error> {
+        debug!("headers == {:?}", headers);
+        let dah = DocumentAdditionalHeaders {
+            charge: request_charge_from_headers(headers)?,
+        };
+
+        debug!("dah == {:?}", dah);
+        Ok(dah)
     }
 }
 

@@ -1,4 +1,5 @@
 use super::*;
+use std::convert::TryFrom;
 
 pub fn request_charge_from_headers(headers: &HeaderMap) -> Result<f64, AzureError> {
     Ok(headers
@@ -110,7 +111,7 @@ impl GetDocumentRequest {
     ) -> Result<GetDocumentResponse<R>, AzureError> {
         match status {
             StatusCode::OK => {
-                let additional_headers = DocumentAdditionalHeaders::derive_from(headers);
+                let additional_headers = DocumentAdditionalHeaders::try_from(headers)?;
                 let document = Document::from_json(body)?;
                 Ok(GetDocumentResponse {
                     document: Some(document),
@@ -120,7 +121,7 @@ impl GetDocumentRequest {
             // NotFound is not an error so we return None along
             // with the additional headers.
             StatusCode::NOT_FOUND => {
-                let additional_headers = DocumentAdditionalHeaders::derive_from(headers);
+                let additional_headers = DocumentAdditionalHeaders::try_from(headers)?;
                 Ok(GetDocumentResponse {
                     document: None,
                     additional_headers,
@@ -459,7 +460,7 @@ impl<T: DeserializeOwned> ReplaceDocumentRequest<T> {
         headers: &HeaderMap,
         body: &[u8],
     ) -> Result<ReplaceDocumentResponse<R>, AzureError> {
-        let additional_headers = DocumentAdditionalHeaders::derive_from(headers);
+        let additional_headers = DocumentAdditionalHeaders::try_from(headers)?;
         let document = Document::from_json(body)?;
         Ok(ReplaceDocumentResponse {
             document,

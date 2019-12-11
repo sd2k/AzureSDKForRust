@@ -1,4 +1,5 @@
 use super::*;
+use std::convert::TryFrom;
 
 pub struct ExecuteStoredProcedureRequest {
     hyper_client: HyperClient,
@@ -52,7 +53,7 @@ impl ExecuteStoredProcedureRequest {
         headers: &HeaderMap,
         v_body: &[u8],
     ) -> Result<ExecuteStoredProcedureResponse<R>, AzureError> {
-        let additional_headers = DocumentAdditionalHeaders::derive_from(headers);
+        let additional_headers = DocumentAdditionalHeaders::try_from(headers)?;
         let result = serde_json::from_slice(v_body)?;
         Ok(ExecuteStoredProcedureResponse {
             result,

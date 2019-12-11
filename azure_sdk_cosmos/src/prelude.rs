@@ -8,7 +8,8 @@ pub use crate::{
     AIMOption, AIMSupport, AllowTentativeWritesOption, AllowTentativeWritesSupport,
     AuthorizationToken, Client, Client2, Client2Builder, ClientBuilder, CollectionTrait,
     ConsistencyLevel, ConsistencyLevelOption, ConsistencyLevelSupport, ContinuationOption,
-    ContinuationSupport, CosmosTrait, DatabaseTrait, MaxItemCountOption, MaxItemCountSupport,
-    Offer, PartitionKeyOption, PartitionKeySupport, PartitionRangeIdOption,
-    PartitionRangeIdSupport, QueryCrossPartitionOption, QueryCrossPartitionSupport, TokenType,
+    ContinuationSupport, CosmosTrait, DatabaseTrait, DocumentIdRequired, DocumentIdSupport,
+    MaxItemCountOption, MaxItemCountSupport, Offer, PartitionKeyOption, PartitionKeySupport,
+    PartitionRangeIdOption, PartitionRangeIdSupport, QueryCrossPartitionOption,
+    QueryCrossPartitionSupport, TokenType,
 };

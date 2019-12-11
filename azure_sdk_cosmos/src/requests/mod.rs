@@ -54,12 +54,14 @@ macro_rules! request_option {
 }
 
 mod document_requests;
+mod get_document_builder;
 mod list_collections_builder;
 mod list_databases_builder;
 mod list_documents_builder;
 mod sproc_requests;
 
 pub use self::document_requests::*;
+pub use self::get_document_builder::GetDocumentBuilder;
 pub use self::list_collections_builder::ListCollectionsBuilder;
 pub use self::list_databases_builder::ListDatabasesBuilder;
 pub use self::list_documents_builder::ListDocumentsBuilder;

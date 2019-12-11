@@ -36,6 +36,7 @@ use self::database_client::DatabaseClient;
 use crate::client2::headers::*;
 use crate::collection::CollectionName;
 use crate::database::DatabaseName;
+use azure_sdk_core::No;
 use http::request::Builder;
 
 pub trait ClientRequired<'a, CUB>
@@ -218,11 +219,11 @@ pub trait CollectionSupport<'a> {
     fn with_collection(self, collection: &'a str) -> Self::O;
 }
 
-pub trait DocumentIDRequired<'a> {
+pub trait DocumentIdRequired<'a> {
     fn document_id(&self) -> &'a str;
 }
 
-pub trait DocumentIDSupport<'a> {
+pub trait DocumentIdSupport<'a> {
     type O;
     fn with_document_id(self, document_id: &'a str) -> Self::O;
 }
@@ -255,4 +256,5 @@ where
     fn database(&self) -> &'a str;
     fn collection(&self) -> &'a str;
     fn list(&self) -> requests::ListDocumentsBuilder<'_, '_, CUB>;
+    fn get(&self) -> requests::GetDocumentBuilder<'_, '_, CUB, No>;
 }
