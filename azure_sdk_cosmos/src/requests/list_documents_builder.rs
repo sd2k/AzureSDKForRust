@@ -488,7 +488,7 @@ where
         Ok(resp)
     }
 
-    pub async fn as_json(&self) -> Result<ListDocumentsResponse<String>, AzureError> {
+    pub async fn as_json(&self) -> Result<ListDocumentsResponse<serde_json::Value>, AzureError> {
         use crate::request_response::Document;
         use crate::request_response::ListDocumentsResponseAdditionalHeaders;
         use crate::request_response::ListDocumentsResponseAttributes;
@@ -525,12 +525,8 @@ where
         // There is a lot of data movement here, let's hope the compiler is smarter than me :)
         let document_attributes = ListDocumentsResponseAttributes::try_from(&whole_body as &[u8])?;
         debug!("document_attributes == {:?}", document_attributes);
-
-        let entries = ListDocumentsResponseEntities::to_string(&whole_body as &[u8])?;
-
-        let entries2 = ListDocumentsResponseEntities::to_json(&whole_body as &[u8])?;
-
-        println!("\n\nentries2 == {:?}\n\n", entries2);
+        let entries = ListDocumentsResponseEntities::to_json(&whole_body as &[u8])?;
+        debug!("\n\nentries == {:?}\n\n", entries);
 
         let documents = document_attributes
             .documents
