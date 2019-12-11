@@ -535,6 +535,49 @@ where
         Ok(resp)
     }
 
+    pub fn stream_as_json(
+        &self,
+    ) -> impl Stream<Item = Result<ListDocumentsResponse<serde_json::Value>, AzureError>> + '_ {
+        #[derive(Debug, Clone, PartialEq)]
+        enum States {
+            Init,
+            Continuation(String),
+        };
+
+        unfold(
+            Some(States::Init),
+            move |continuation_token: Option<States>| {
+                async move {
+                    println!("continuation_token == {:?}", &continuation_token);
+                    let response = match continuation_token {
+                        Some(States::Init) => self.as_entity().await,
+                        Some(States::Continuation(continuation_token)) => {
+                            self.clone()
+                                .with_continuation(&continuation_token)
+                                .as_json()
+                                .await
+                        }
+                        None => return None,
+                    };
+
+                    // the ? operator does not work in async move (yet?)
+                    // so we have to resort to this boilerplate
+                    let response = match response {
+                        Ok(response) => response,
+                        Err(err) => return Some((Err(err), None)),
+                    };
+
+                    let continuation_token = match &response.additional_headers.continuation_token {
+                        Some(ct) => Some(States::Continuation(ct.to_owned())),
+                        None => None,
+                    };
+
+                    Some((Ok(response), continuation_token))
+                }
+            },
+        )
+    }
+
     pub fn stream_as_entity<T>(
         &self,
     ) -> impl Stream<Item = Result<ListDocumentsResponse<T>, AzureError>> + '_
