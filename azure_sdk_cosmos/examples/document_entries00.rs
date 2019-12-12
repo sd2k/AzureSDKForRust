@@ -71,9 +71,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // This comment will be wiped as soon as
     // the migration is over.
     let client2 = Client2Builder::new(authorization_token)?;
+    let client2 = client2.with_database(&database_name);
+    let client2 = client2.with_collection(&collection_name);
+
     let response = client2
-        .with_database(&database_name)
-        .with_collection(&collection_name)
         .list()
         .with_max_item_count(3)
         .get_as_entity::<MySampleStructOwned>()
@@ -93,8 +94,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("ct == {}", ct);
 
     let response = client2
-        .with_database(&database_name)
-        .with_collection(&collection_name)
         .list()
         .with_continuation(&ct)
         .get_as_entity::<MySampleStructOwned>()
@@ -113,10 +112,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("\n\nLooking for a specific item");
     let id = format!("unique_id{}", 3);
 
-    let response = client
-        .get_document(&database_name, &collection_name, &id)
-        .partition_key(id.clone())
-        .execute::<MySampleStructOwned>()
+    let response = client2
+        .get()
+        .with_document_id(&id)
+        .with_partition_keys(&vec![&id as &str])
+        .get_as_entity::<MySampleStructOwned>()
         .await?;
 
     assert_eq!(response.document.is_some(), true);
@@ -137,10 +137,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("\n\nLooking for non-existing item");
     let id = format!("unique_id{}", 100);
 
-    let response = client
-        .get_document(&database_name, &collection_name, &id)
-        .partition_key(id.clone())
-        .execute::<MySampleStructOwned>()
+    let response = client2
+        .get()
+        .with_document_id(&id)
+        .with_partition_keys(&vec![&id as &str])
+        .get_as_entity::<MySampleStructOwned>()
         .await?;
 
     assert_eq!(response.document.is_some(), false);

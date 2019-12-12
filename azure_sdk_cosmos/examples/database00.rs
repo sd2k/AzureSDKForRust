@@ -46,7 +46,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let doc = collection
                 .get()
                 .with_document_id("3321000d-8d9f-f6e9-24e5-d1a3e217eb1a")
-                .with_partition_key(&vec!["cyan"])
+                .with_partition_keys(&vec!["cyan"])
                 .with_query_cross_partition(true)
                 .get_as_entity::<MyStruct>()
                 .await?;
@@ -55,7 +55,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let doc = collection
                 .get()
                 .with_document_id("3321000d-8d9f-f6e9-24e5-d1a3e217eb1a")
-                .with_partition_key(&vec!["cyan"])
+                .with_partition_keys(&vec!["cyan"])
                 .with_query_cross_partition(true)
                 .get_as_json()
                 .await?;

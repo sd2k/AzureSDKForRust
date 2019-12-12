@@ -381,9 +381,9 @@ mod tests {
 
     #[test]
     fn test_list_document() {
-        let document_attributes =
+        let _document_attributes =
             serde_json::from_slice::<ListDocumentsResponseAttributes>(BODY.as_bytes()).unwrap();
-        let entries =
+        let _entries =
             serde_json::from_slice::<ListDocumentsResponseEntities<MyStruct>>(BODY.as_bytes())
                 .unwrap();
     }

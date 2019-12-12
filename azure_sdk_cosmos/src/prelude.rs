@@ -9,7 +9,7 @@ pub use crate::{
     AuthorizationToken, Client, Client2, Client2Builder, ClientBuilder, CollectionTrait,
     ConsistencyLevel, ConsistencyLevelOption, ConsistencyLevelSupport, ContinuationOption,
     ContinuationSupport, CosmosTrait, DatabaseTrait, DocumentIdRequired, DocumentIdSupport,
-    MaxItemCountOption, MaxItemCountSupport, Offer, PartitionKeyOption, PartitionKeySupport,
+    MaxItemCountOption, MaxItemCountSupport, Offer, PartitionKeysOption, PartitionKeysSupport,
     PartitionRangeIdOption, PartitionRangeIdSupport, QueryCrossPartitionOption,
     QueryCrossPartitionSupport, TokenType,
 };

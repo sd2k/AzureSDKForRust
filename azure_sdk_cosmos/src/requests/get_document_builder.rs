@@ -28,7 +28,7 @@ where
     user_agent: Option<&'b str>,
     activity_id: Option<&'b str>,
     consistency_level: Option<ConsistencyLevel<'b>>,
-    partition_key: Option<&'b [&'b str]>,
+    partition_keys: Option<&'b [&'b str]>,
     query_cross_partition: bool,
     a_im: bool,
     partition_range_id: Option<&'b str>,
@@ -51,7 +51,7 @@ where
             user_agent: None,
             activity_id: None,
             consistency_level: None,
-            partition_key: None,
+            partition_keys: None,
             query_cross_partition: false,
             a_im: false,
             partition_range_id: None,
@@ -141,15 +141,15 @@ where
     }
 }
 
-impl<'a, 'b, CUB, DocumentIdSet> PartitionKeyOption<'b>
+impl<'a, 'b, CUB, DocumentIdSet> PartitionKeysOption<'b>
     for GetDocumentBuilder<'a, 'b, CUB, DocumentIdSet>
 where
     DocumentIdSet: ToAssign,
     CUB: CosmosUriBuilder,
 {
     #[inline]
-    fn partition_key(&self) -> Option<&'b [&'b str]> {
-        self.partition_key
+    fn partition_keys(&self) -> Option<&'b [&'b str]> {
+        self.partition_keys
     }
 }
 
@@ -205,7 +205,7 @@ where
             user_agent: self.user_agent,
             activity_id: self.activity_id,
             consistency_level: self.consistency_level,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -232,7 +232,7 @@ where
             user_agent: self.user_agent,
             activity_id: self.activity_id,
             consistency_level: self.consistency_level,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -259,7 +259,7 @@ where
             user_agent: self.user_agent,
             activity_id: self.activity_id,
             consistency_level: self.consistency_level,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -286,7 +286,7 @@ where
             user_agent: Some(user_agent),
             activity_id: self.activity_id,
             consistency_level: self.consistency_level,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -313,7 +313,7 @@ where
             user_agent: self.user_agent,
             activity_id: Some(activity_id),
             consistency_level: self.consistency_level,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -340,7 +340,7 @@ where
             user_agent: self.user_agent,
             activity_id: self.activity_id,
             consistency_level: Some(consistency_level),
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -348,7 +348,7 @@ where
     }
 }
 
-impl<'a, 'b, CUB, DocumentIdSet> PartitionKeySupport<'b>
+impl<'a, 'b, CUB, DocumentIdSet> PartitionKeysSupport<'b>
     for GetDocumentBuilder<'a, 'b, CUB, DocumentIdSet>
 where
     DocumentIdSet: ToAssign,
@@ -357,7 +357,7 @@ where
     type O = GetDocumentBuilder<'a, 'b, CUB, DocumentIdSet>;
 
     #[inline]
-    fn with_partition_key(self, partition_key: &'b [&'b str]) -> Self::O {
+    fn with_partition_keys(self, partition_keys: &'b [&'b str]) -> Self::O {
         GetDocumentBuilder {
             collection_client: self.collection_client,
             p_document_id: PhantomData {},
@@ -367,7 +367,7 @@ where
             user_agent: self.user_agent,
             activity_id: self.activity_id,
             consistency_level: self.consistency_level,
-            partition_key: Some(partition_key),
+            partition_keys: Some(partition_keys),
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -394,7 +394,7 @@ where
             user_agent: self.user_agent,
             activity_id: self.activity_id,
             consistency_level: self.consistency_level,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -420,7 +420,7 @@ where
             user_agent: self.user_agent,
             activity_id: self.activity_id,
             consistency_level: self.consistency_level,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im,
             partition_range_id: self.partition_range_id,
@@ -447,7 +447,7 @@ where
             user_agent: self.user_agent,
             activity_id: self.activity_id,
             consistency_level: self.consistency_level,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: Some(partition_range_id),
@@ -486,7 +486,7 @@ where
         UserAgentOption::add_header(self, &mut req);
         ActivityIdOption::add_header(self, &mut req);
         ConsistencyLevelOption::add_header(self, &mut req);
-        PartitionKeyOption::add_header(self, &mut req);
+        PartitionKeysOption::add_header(self, &mut req);
         QueryCrossPartitionOption::add_header(self, &mut req);
         AIMOption::add_header(self, &mut req);
         PartitionRangeIdOption::add_header(self, &mut req);

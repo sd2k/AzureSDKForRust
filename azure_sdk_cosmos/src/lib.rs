@@ -175,17 +175,17 @@ pub trait MaxItemCountOption {
     }
 }
 
-pub trait PartitionKeySupport<'a> {
+pub trait PartitionKeysSupport<'a> {
     type O;
-    fn with_partition_key(self, partition_key: &'a [&'a str]) -> Self::O;
+    fn with_partition_keys(self, partition_key: &'a [&'a str]) -> Self::O;
 }
 
-pub trait PartitionKeyOption<'a> {
-    fn partition_key(&self) -> Option<&'a [&'a str]>;
+pub trait PartitionKeysOption<'a> {
+    fn partition_keys(&self) -> Option<&'a [&'a str]>;
 
     fn add_header(&self, builder: &mut Builder) {
-        if let Some(partition_key) = self.partition_key() {
-            let serialized = serde_json::to_string(partition_key).unwrap();
+        if let Some(partition_keys) = self.partition_keys() {
+            let serialized = serde_json::to_string(partition_keys).unwrap();
             builder.header(HEADER_DOCUMENTDB_PARTITIONKEY, serialized);
         }
     }

@@ -26,7 +26,7 @@ where
     consistency_level: Option<ConsistencyLevel<'b>>,
     continuation: Option<&'b str>,
     max_item_count: i32,
-    partition_key: Option<&'b [&'b str]>,
+    partition_keys: Option<&'b [&'b str]>,
     query_cross_partition: bool,
     a_im: bool,
     partition_range_id: Option<&'b str>,
@@ -49,7 +49,7 @@ where
             consistency_level: self.consistency_level,
             continuation: self.continuation,
             max_item_count: self.max_item_count,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -74,7 +74,7 @@ where
             consistency_level: None,
             continuation: None,
             max_item_count: -1,
-            partition_key: None,
+            partition_keys: None,
             query_cross_partition: false,
             a_im: false,
             partition_range_id: None,
@@ -162,13 +162,13 @@ where
     }
 }
 
-impl<'a, 'b, CUB> PartitionKeyOption<'b> for ListDocumentsBuilder<'a, 'b, CUB>
+impl<'a, 'b, CUB> PartitionKeysOption<'b> for ListDocumentsBuilder<'a, 'b, CUB>
 where
     CUB: CosmosUriBuilder,
 {
     #[inline]
-    fn partition_key(&self) -> Option<&'b [&'b str]> {
-        self.partition_key
+    fn partition_keys(&self) -> Option<&'b [&'b str]> {
+        self.partition_keys
     }
 }
 
@@ -219,7 +219,7 @@ where
             consistency_level: self.consistency_level,
             continuation: self.continuation,
             max_item_count: self.max_item_count,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -244,7 +244,7 @@ where
             consistency_level: self.consistency_level,
             continuation: self.continuation,
             max_item_count: self.max_item_count,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -269,7 +269,7 @@ where
             consistency_level: self.consistency_level,
             continuation: self.continuation,
             max_item_count: self.max_item_count,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -294,7 +294,7 @@ where
             consistency_level: self.consistency_level,
             continuation: self.continuation,
             max_item_count: self.max_item_count,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -319,7 +319,7 @@ where
             consistency_level: Some(consistency_level),
             continuation: self.continuation,
             max_item_count: self.max_item_count,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -344,7 +344,7 @@ where
             consistency_level: self.consistency_level,
             continuation: Some(continuation),
             max_item_count: self.max_item_count,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -369,7 +369,7 @@ where
             consistency_level: self.consistency_level,
             continuation: self.continuation,
             max_item_count,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -377,14 +377,14 @@ where
     }
 }
 
-impl<'a, 'b, CUB> PartitionKeySupport<'b> for ListDocumentsBuilder<'a, 'b, CUB>
+impl<'a, 'b, CUB> PartitionKeysSupport<'b> for ListDocumentsBuilder<'a, 'b, CUB>
 where
     CUB: CosmosUriBuilder,
 {
     type O = ListDocumentsBuilder<'a, 'b, CUB>;
 
     #[inline]
-    fn with_partition_key(self, partition_key: &'b [&'b str]) -> Self::O {
+    fn with_partition_keys(self, partition_keys: &'b [&'b str]) -> Self::O {
         ListDocumentsBuilder {
             collection_client: self.collection_client,
             if_match_condition: self.if_match_condition,
@@ -394,7 +394,7 @@ where
             consistency_level: self.consistency_level,
             continuation: self.continuation,
             max_item_count: self.max_item_count,
-            partition_key: Some(partition_key),
+            partition_keys: Some(partition_keys),
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -419,7 +419,7 @@ where
             consistency_level: self.consistency_level,
             continuation: self.continuation,
             max_item_count: self.max_item_count,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition,
             a_im: self.a_im,
             partition_range_id: self.partition_range_id,
@@ -444,7 +444,7 @@ where
             consistency_level: self.consistency_level,
             continuation: self.continuation,
             max_item_count: self.max_item_count,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im,
             partition_range_id: self.partition_range_id,
@@ -469,7 +469,7 @@ where
             consistency_level: self.consistency_level,
             continuation: self.continuation,
             max_item_count: self.max_item_count,
-            partition_key: self.partition_key,
+            partition_keys: self.partition_keys,
             query_cross_partition: self.query_cross_partition,
             a_im: self.a_im,
             partition_range_id: Some(partition_range_id),
@@ -501,7 +501,7 @@ where
         ConsistencyLevelOption::add_header(self, &mut req);
         ContinuationOption::add_header(self, &mut req);
         MaxItemCountOption::add_header(self, &mut req);
-        PartitionKeyOption::add_header(self, &mut req);
+        PartitionKeysOption::add_header(self, &mut req);
         QueryCrossPartitionOption::add_header(self, &mut req);
         AIMOption::add_header(self, &mut req);
         PartitionRangeIdOption::add_header(self, &mut req);
