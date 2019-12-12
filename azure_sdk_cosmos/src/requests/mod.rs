@@ -1,6 +1,6 @@
 use crate::{
     client::headers::*,
-    document::{DocumentAttributes, IndexingDirective},
+    document::DocumentAttributes,
     partition_key::PartitionKey,
     request_response::*,
     //ConsistencyLevel,
@@ -53,6 +53,7 @@ macro_rules! request_option {
     };
 }
 
+mod create_document_builder;
 mod document_requests;
 mod get_document_builder;
 mod list_collections_builder;
@@ -60,6 +61,7 @@ mod list_databases_builder;
 mod list_documents_builder;
 mod sproc_requests;
 
+pub use self::create_document_builder::CreateDocumentBuilder;
 pub use self::document_requests::*;
 pub use self::get_document_builder::GetDocumentBuilder;
 pub use self::list_collections_builder::ListCollectionsBuilder;

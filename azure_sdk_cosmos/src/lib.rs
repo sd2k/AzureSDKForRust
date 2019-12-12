@@ -16,6 +16,7 @@ mod create_collection_builder;
 pub mod database;
 mod database_client;
 pub mod document;
+mod indexing_directive;
 pub mod offer;
 mod partition_key;
 pub mod prelude;
@@ -27,6 +28,7 @@ pub use self::authorization_token::*;
 pub use self::client::*;
 pub use self::client2::{Client2, Client2Builder};
 pub use self::consistency_level::ConsistencyLevel;
+pub use self::indexing_directive::IndexingDirective;
 pub use self::offer::Offer;
 pub use self::partition_key::*;
 pub use self::requests::*;
@@ -38,6 +40,7 @@ use crate::collection::CollectionName;
 use crate::database::DatabaseName;
 use azure_sdk_core::No;
 use http::request::Builder;
+use serde::Serialize;
 
 pub trait ClientRequired<'a, CUB>
 where
@@ -70,6 +73,19 @@ pub trait QueryCrossPartitionOption {
             HEADER_DOCUMENTDB_QUERY_ENABLECROSSPARTITION,
             self.query_cross_partition().to_string(),
         );
+    }
+}
+
+pub trait IsUpsertSupport {
+    type O;
+    fn with_is_upsert(self, is_upsert: bool) -> Self::O;
+}
+
+pub trait IsUpsertOption {
+    fn is_upsert(&self) -> bool;
+
+    fn add_header(&self, builder: &mut Builder) {
+        builder.header(HEADER_DOCUMENTDB_IS_UPSERT, self.is_upsert().to_string());
     }
 }
 
@@ -158,6 +174,27 @@ pub trait ContinuationOption<'a> {
     }
 }
 
+pub trait IndexingDirectiveSupport {
+    type O;
+    fn with_indexing_directive(self, indexing_directive: IndexingDirective) -> Self::O;
+}
+
+pub trait IndexingDirectiveOption {
+    fn indexing_directive(&self) -> IndexingDirective;
+
+    fn add_header(&self, builder: &mut Builder) {
+        match self.indexing_directive() {
+            IndexingDirective::Default => {} // nothing to do
+            IndexingDirective::Exclude => {
+                builder.header(HEADER_INDEXING_DIRECTIVE, "Exclude");
+            }
+            IndexingDirective::Include => {
+                builder.header(HEADER_INDEXING_DIRECTIVE, "Include");
+            }
+        }
+    }
+}
+
 pub trait MaxItemCountSupport {
     type O;
     fn with_max_item_count(self, max_item_count: i32) -> Self::O;
@@ -212,6 +249,21 @@ pub trait DatabaseSupport<'a> {
 
 pub trait CollectionRequired<'a> {
     fn collection(&self) -> &'a str;
+}
+
+pub trait DocumentRequired<'a, T>
+where
+    T: Serialize,
+{
+    fn document(&self) -> &'a T;
+}
+
+pub trait DocumentSupport<'a, T>
+where
+    T: Serialize,
+{
+    type O;
+    fn with_document(self, document: &'a T) -> Self::O;
 }
 
 pub trait CollectionSupport<'a> {

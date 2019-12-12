@@ -1,4 +1,5 @@
 use super::*;
+use crate::IndexingDirective;
 use std::convert::TryFrom;
 
 pub fn request_charge_from_headers(headers: &HeaderMap) -> Result<f64, AzureError> {

@@ -9,7 +9,8 @@ pub use crate::{
     AuthorizationToken, Client, Client2, Client2Builder, ClientBuilder, CollectionTrait,
     ConsistencyLevel, ConsistencyLevelOption, ConsistencyLevelSupport, ContinuationOption,
     ContinuationSupport, CosmosTrait, DatabaseTrait, DocumentIdRequired, DocumentIdSupport,
-    MaxItemCountOption, MaxItemCountSupport, Offer, PartitionKeysOption, PartitionKeysSupport,
-    PartitionRangeIdOption, PartitionRangeIdSupport, QueryCrossPartitionOption,
-    QueryCrossPartitionSupport, TokenType,
+    DocumentRequired, DocumentSupport, IndexingDirective, IndexingDirectiveOption,
+    IndexingDirectiveSupport, IsUpsertOption, IsUpsertSupport, MaxItemCountOption,
+    MaxItemCountSupport, Offer, PartitionKeysOption, PartitionKeysSupport, PartitionRangeIdOption,
+    PartitionRangeIdSupport, QueryCrossPartitionOption, QueryCrossPartitionSupport, TokenType,
 };
