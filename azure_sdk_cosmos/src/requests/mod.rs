@@ -1,6 +1,6 @@
 use crate::{
     client::headers::*,
-    document::DocumentAttributes,
+    document_attributes::DocumentAttributes,
     partition_key::PartitionKey,
     request_response::*,
     //ConsistencyLevel,

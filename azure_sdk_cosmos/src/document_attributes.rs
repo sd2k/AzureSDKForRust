@@ -1,3 +1,5 @@
+use azure_sdk_core::errors::AzureError;
+use http::HeaderMap;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
@@ -99,6 +101,14 @@ impl DocumentAttributes {
             etag,
             attachments,
         })
+    }
+}
+
+impl std::convert::TryFrom<(&HeaderMap, &[u8])> for DocumentAttributes {
+    type Error = AzureError;
+    fn try_from(value: (&HeaderMap, &[u8])) -> Result<Self, Self::Error> {
+        let body = value.1;
+        Ok(serde_json::from_slice(body)?)
     }
 }
 

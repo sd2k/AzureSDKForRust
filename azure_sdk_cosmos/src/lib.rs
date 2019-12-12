@@ -15,7 +15,7 @@ mod consistency_level;
 mod create_collection_builder;
 pub mod database;
 mod database_client;
-pub mod document;
+pub mod document_attributes;
 mod indexing_directive;
 pub mod offer;
 mod partition_key;
@@ -23,6 +23,7 @@ pub mod prelude;
 pub mod query;
 pub mod request_response;
 mod requests;
+mod responses;
 
 pub use self::authorization_token::*;
 pub use self::client::*;

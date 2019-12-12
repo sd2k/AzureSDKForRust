@@ -1,4 +1,5 @@
 use crate::client2::{CosmosUriBuilder, ResourceType};
+use crate::document_attributes::DocumentAttributes;
 use crate::prelude::*;
 use crate::request_response::ListDocumentsResponse;
 use crate::CollectionClient;
@@ -650,6 +651,7 @@ where
         T: DeserializeOwned,
     {
         let (headers, whole_body) = self.perform_request().await?;
+        let da = DocumentAttributes::try_from((&headers, &whole_body as &[u8]))?;
         let resp = ListDocumentsResponse::try_from((&headers, &whole_body as &[u8]))?;
         Ok(resp)
     }

@@ -1,4 +1,5 @@
 use super::*;
+use crate::responses::DocumentAdditionalHeaders;
 use crate::IndexingDirective;
 use std::convert::TryFrom;
 

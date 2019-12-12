@@ -1,4 +1,5 @@
 use super::*;
+use crate::responses::DocumentAdditionalHeaders;
 use std::convert::TryFrom;
 
 pub struct ExecuteStoredProcedureRequest {
