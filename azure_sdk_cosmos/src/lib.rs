@@ -310,4 +310,7 @@ where
     fn collection(&self) -> &'a str;
     fn list(&self) -> requests::ListDocumentsBuilder<'_, '_, CUB>;
     fn get(&self) -> requests::GetDocumentBuilder<'_, '_, CUB, No>;
+    fn create<T>(&self) -> requests::CreateDocumentBuilder<'_, '_, T, CUB, No>
+    where
+        T: Serialize;
 }

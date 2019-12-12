@@ -1,7 +1,7 @@
 use crate::client2::{CosmosUriBuilder, ResourceType};
 use crate::document_attributes::DocumentAttributes;
 use crate::prelude::*;
-use crate::request_response::ListDocumentsResponse;
+use crate::responses::CreateDocumentResponse;
 use crate::CollectionClient;
 use crate::CollectionClientRequired;
 use azure_sdk_core::errors::{check_status_extract_headers_and_body, AzureError};
@@ -646,13 +646,8 @@ where
         Ok((headers, whole_body))
     }
 
-    pub async fn execute(&self) -> Result<ListDocumentsResponse<T>, AzureError>
-    where
-        T: DeserializeOwned,
-    {
+    pub async fn execute(&self) -> Result<CreateDocumentResponse, AzureError> {
         let (headers, whole_body) = self.perform_request().await?;
-        let da = DocumentAttributes::try_from((&headers, &whole_body as &[u8]))?;
-        let resp = ListDocumentsResponse::try_from((&headers, &whole_body as &[u8]))?;
-        Ok(resp)
+        CreateDocumentResponse::try_from((&headers, &whole_body as &[u8]))
     }
 }

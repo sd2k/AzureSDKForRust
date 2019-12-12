@@ -4,7 +4,7 @@
 	"uses": [
 		"crate::client2::{CosmosUriBuilder, ResourceType}",
 		"crate::prelude::*",
-		"crate::request_response::ListDocumentsResponse",
+		"crate::responses::CreateDocumentResponse",
 		"crate::CollectionClient",
 		"crate::CollectionClientRequired",
 		"azure_sdk_core::errors::{check_status_extract_headers_and_body, AzureError}",

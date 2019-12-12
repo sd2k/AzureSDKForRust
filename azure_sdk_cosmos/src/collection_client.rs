@@ -3,6 +3,7 @@ use crate::database_client::DatabaseClient;
 use crate::requests;
 use crate::{CollectionTrait, DatabaseTrait};
 use azure_sdk_core::No;
+use serde::Serialize;
 
 #[derive(Debug, Clone)]
 pub struct CollectionClient<'a, CUB>
@@ -53,5 +54,12 @@ where
 
     fn get(&self) -> requests::GetDocumentBuilder<'_, '_, CUB, No> {
         requests::GetDocumentBuilder::new(self)
+    }
+
+    fn create<T>(&self) -> requests::CreateDocumentBuilder<'_, '_, T, CUB, No>
+    where
+        T: Serialize,
+    {
+        requests::CreateDocumentBuilder::new(self)
     }
 }
