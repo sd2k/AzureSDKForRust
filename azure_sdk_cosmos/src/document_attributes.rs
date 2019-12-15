@@ -1,8 +1,5 @@
 use azure_sdk_core::errors::AzureError;
 use http::HeaderMap;
-use std::fmt;
-use std::fmt::{Display, Formatter};
-use std::str::FromStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DocumentAttributes {

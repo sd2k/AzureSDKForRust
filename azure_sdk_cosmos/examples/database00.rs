@@ -46,7 +46,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 let data = r#"
                 {
                     "id": "last_id_no_questione",
-                    "name": "John Tonno5",
+                    "name": "John Tonno7",
                     "age": 43,
                     "phones": [
                         "+44 1234567",
@@ -67,6 +67,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .with_is_upsert(true)
                     .execute()
                     .await?;
+
+                println!("resp == {:?}", resp);
             }
 
             //let documents = collection.list().get_as_json().await?;

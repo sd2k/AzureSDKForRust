@@ -4,7 +4,10 @@ use crate::prelude::*;
 use crate::responses::CreateDocumentResponse;
 use crate::CollectionClient;
 use crate::CollectionClientRequired;
-use azure_sdk_core::errors::{check_status_extract_headers_and_body, AzureError};
+use azure_sdk_core::errors::{
+    check_status_extract_headers_and_body, extract_status_headers_and_body, AzureError,
+    UnexpectedHTTPResult,
+};
 use azure_sdk_core::modify_conditions::IfMatchCondition;
 use azure_sdk_core::prelude::*;
 use azure_sdk_core::{IfMatchConditionOption, IfMatchConditionSupport};
@@ -606,7 +609,7 @@ where
     T: Serialize,
     CUB: CosmosUriBuilder,
 {
-    async fn perform_request(&self) -> Result<(hyper::HeaderMap, hyper::Chunk), AzureError> {
+    pub async fn execute(&self) -> Result<CreateDocumentResponse, AzureError> {
         let mut req = self.collection_client.main_client().prepare_request(
             &format!(
                 "dbs/{}/colls/{}/docs",
@@ -634,20 +637,34 @@ where
 
         let req = req.body(hyper::Body::from(serialized))?;
 
-        let (headers, whole_body) = check_status_extract_headers_and_body(
-            self.collection_client.hyper_client().request(req),
-            StatusCode::CREATED,
-        )
-        .await?;
+        let (status_code, headers, whole_body) =
+            extract_status_headers_and_body(self.collection_client.hyper_client().request(req))
+                .await?;
 
-        debug!("\nheaders == {:?}", headers);
-        debug!("\nwhole body == {:#?}", whole_body);
+        debug!("status_core == {:?}", status_code);
+        debug!("headers == {:?}", headers);
+        debug!("whole body == {:#?}", whole_body);
 
-        Ok((headers, whole_body))
-    }
+        // expect CREATED is IsUpsert is off. Otherwise either
+        // CREATED or OK means success.
+        if !self.is_upsert() && status_code != StatusCode::CREATED {
+            return Err(UnexpectedHTTPResult::new(
+                StatusCode::CREATED,
+                status_code,
+                std::str::from_utf8(&whole_body)?,
+            )
+            .into());
+        } else {
+            if status_code != StatusCode::CREATED && status_code != StatusCode::OK {
+                return Err(UnexpectedHTTPResult::new_multiple(
+                    vec![StatusCode::CREATED, StatusCode::OK],
+                    status_code,
+                    std::str::from_utf8(&whole_body)?,
+                )
+                .into());
+            }
+        }
 
-    pub async fn execute(&self) -> Result<CreateDocumentResponse, AzureError> {
-        let (headers, whole_body) = self.perform_request().await?;
-        CreateDocumentResponse::try_from((&headers, &whole_body as &[u8]))
+        CreateDocumentResponse::try_from((status_code, &headers, &whole_body as &[u8]))
     }
 }
