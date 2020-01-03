@@ -229,6 +229,37 @@ impl TableService {
         TableEntry::try_from((&headers, &body as &[u8]))
     }
 
+    /// Replace an existing entity, or insert a new entity if it does not exist.
+    ///
+    /// Also known as _upsert_.
+    ///
+    /// See https://docs.microsoft.com/en-us/rest/api/storageservices/insert-or-replace-entity
+    /// for full details.
+    pub async fn insert_or_replace_entry<T>(
+        &self,
+        table_name: &str,
+        mut entry: TableEntry<T>,
+    ) -> Result<TableEntry<T>, AzureError>
+    where
+        T: Serialize + DeserializeOwned,
+    {
+        let obj_ser = serde_json::to_string(&entry)?.to_owned();
+        let path = &entry_path(table_name, &entry.partition_key, &entry.row_key);
+
+        let future_response =
+            self.request_with_default_header(path, &Method::PUT, Some(&obj_ser), false, |_| {})?;
+
+        let (headers, _body) =
+            check_status_extract_headers_and_body(future_response, StatusCode::NO_CONTENT).await?;
+
+        // inject etag if present
+        entry.etag = match headers.get(header::ETAG) {
+            Some(etag) => Some(etag.to_str()?.to_owned()),
+            None => None,
+        };
+        Ok(entry)
+    }
+
     pub async fn update_entry<T>(
         &self,
         table_name: &str,
@@ -463,6 +494,24 @@ impl TableStorage {
     {
         self.service
             .insert_entry::<T>(&self.table_name, entry)
+            .await
+    }
+
+    /// Replace an existing entity, or insert a new entity if it does not exist.
+    ///
+    /// Also known as _upsert_.
+    ///
+    /// See https://docs.microsoft.com/en-us/rest/api/storageservices/insert-or-replace-entity
+    /// for full details.
+    pub async fn insert_or_replace_entry<T>(
+        &self,
+        entry: TableEntry<T>,
+    ) -> Result<TableEntry<T>, AzureError>
+    where
+        T: Serialize + DeserializeOwned,
+    {
+        self.service
+            .insert_or_replace_entry(&self.table_name, entry)
             .await
     }
 
