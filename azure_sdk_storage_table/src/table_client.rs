@@ -13,6 +13,7 @@ use hyper::{
 use hyper::{Method, StatusCode};
 use log;
 use serde_json;
+use url::Url;
 
 const TABLE_TABLES: &str = "TABLES";
 
@@ -79,6 +80,13 @@ impl TableClient<KeyClient> {
                         .to_owned(),
                 ))
             }
+        }
+    }
+
+    pub fn with_emulator(table_storage_url: &Url) -> Self {
+        TableClient {
+            // The blob storage part won't be used, so just use the same URL.
+            client: client::with_emulator(table_storage_url, table_storage_url),
         }
     }
 }
